@@ -23,6 +23,10 @@
 constexpr float FIRMWARE_VERSION = 0.1;
 constexpr uint32_t UART_BAUDRATE = 115200;
 
+constexpr uint8_t PWM_PIN = 32;
+constexpr uint8_t PWM_CHANNEL = 0;
+constexpr uint32_t PWM_FREQ = 125000;
+
 /************************************
  * PRIVATE TYPEDEFS
  ************************************/
@@ -64,6 +68,11 @@ void setup()
   Serial.printf("Flash Size  : %i KB\n", ESP.getFlashChipSize() / 1024);
   Serial.printf("--------------------------------------------\n");
   Serial.printf("Run\n");
+
+  // Start PWM
+  ledcSetup(PWM_CHANNEL, PWM_FREQ, 8);
+  ledcAttachPin(PWM_PIN, PWM_CHANNEL);
+  ledcWrite(PWM_CHANNEL, 128);
 }
 
 void loop()

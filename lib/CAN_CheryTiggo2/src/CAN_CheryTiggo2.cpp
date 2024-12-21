@@ -10,109 +10,109 @@
 #include "CAN_CheryTiggo2.h"
 #include "CAN_CheryTiggo2_Types.h"
 
-can_msg_tpms_t::can_msg_tpms_t() : m_bmFlags(0),
-								   m_wReserved(0),
-								   m_bPressureFL(0),
-								   m_bPressureFR(0),
-								   m_bPressureRL(0),
-								   m_bPressureRR(0) {}
+Ct2CanMsgTpms::Ct2CanMsgTpms() : m_bmFlags(0),
+                                 m_wReserved(0),
+                                 m_bPressureFL(0),
+                                 m_bPressureFR(0),
+                                 m_bPressureRL(0),
+                                 m_bPressureRR(0) {}
 
-float can_msg_tpms_t::pressureFL()
+float Ct2CanMsgTpms::pressureFL()
 {
-	return PRESSURE_CONVERT_FROM(m_bPressureFL);
+    return PRESSURE_CONVERT_FROM(m_bPressureFL);
 }
 
-void can_msg_tpms_t::setPressureFL(float fPressure_bar)
+void Ct2CanMsgTpms::setPressureFL(float fPressure_bar)
 {
-	m_bPressureFL = PRESSURE_CONVERT_TO(fPressure_bar);
+    m_bPressureFL = PRESSURE_CONVERT_TO(fPressure_bar);
 }
 
-float can_msg_tpms_t::pressureFR()
+float Ct2CanMsgTpms::pressureFR()
 {
-	return PRESSURE_CONVERT_FROM(m_bPressureFR);
+    return PRESSURE_CONVERT_FROM(m_bPressureFR);
 }
 
-void can_msg_tpms_t::setPressureFR(float fPressure_bar)
+void Ct2CanMsgTpms::setPressureFR(float fPressure_bar)
 {
-	m_bPressureFR = PRESSURE_CONVERT_TO(fPressure_bar);
+    m_bPressureFR = PRESSURE_CONVERT_TO(fPressure_bar);
 }
 
-float can_msg_tpms_t::pressureRL()
+float Ct2CanMsgTpms::pressureRL()
 {
-	return PRESSURE_CONVERT_FROM(m_bPressureRL);
+    return PRESSURE_CONVERT_FROM(m_bPressureRL);
 }
 
-void can_msg_tpms_t::setPressureRL(float fPressure_bar)
+void Ct2CanMsgTpms::setPressureRL(float fPressure_bar)
 {
-	m_bPressureRL = PRESSURE_CONVERT_TO(fPressure_bar);
+    m_bPressureRL = PRESSURE_CONVERT_TO(fPressure_bar);
 }
 
-float can_msg_tpms_t::pressureRR()
+float Ct2CanMsgTpms::pressureRR()
 {
-	return PRESSURE_CONVERT_FROM(m_bPressureRR);
+    return PRESSURE_CONVERT_FROM(m_bPressureRR);
 }
 
-void can_msg_tpms_t::setPressureRR(float fPressure_bar)
+void Ct2CanMsgTpms::setPressureRR(float fPressure_bar)
 {
-	m_bPressureRR = PRESSURE_CONVERT_TO(fPressure_bar);
+    m_bPressureRR = PRESSURE_CONVERT_TO(fPressure_bar);
 }
 
-bool can_msg_tpms_t::tireAlarmFL()
+bool Ct2CanMsgTpms::tireAlarmFL()
 {
-	return m_bmFlags & TPMS_ALARM_TIRE_FL;
+    return m_bmFlags & TPMS_ALARM_TIRE_FL;
 }
 
-void can_msg_tpms_t::setTireAlarmFL(bool xEnable)
+void Ct2CanMsgTpms::setTireAlarmFL(bool xEnable)
 {
-	UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_TIRE_FL);
+    UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_TIRE_FL);
 }
 
-bool can_msg_tpms_t::tireAlarmFR()
+bool Ct2CanMsgTpms::tireAlarmFR()
 {
-	return m_bmFlags & TPMS_ALARM_TIRE_FR;
+    return m_bmFlags & TPMS_ALARM_TIRE_FR;
 }
 
-void can_msg_tpms_t::setTireAlarmFR(bool xEnable)
+void Ct2CanMsgTpms::setTireAlarmFR(bool xEnable)
 {
-	UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_TIRE_FR);
+    UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_TIRE_FR);
 }
 
-bool can_msg_tpms_t::tireAlarmRL()
+bool Ct2CanMsgTpms::tireAlarmRL()
 {
-	return m_bmFlags & TPMS_ALARM_TIRE_RL;
+    return m_bmFlags & TPMS_ALARM_TIRE_RL;
 }
 
-void can_msg_tpms_t::setTireAlarmRL(bool xEnable)
+void Ct2CanMsgTpms::setTireAlarmRL(bool xEnable)
 {
-	UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_TIRE_RL);
+    UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_TIRE_RL);
 }
 
-bool can_msg_tpms_t::tireAlarmRR()
+bool Ct2CanMsgTpms::tireAlarmRR()
 {
-	return m_bmFlags & TPMS_ALARM_TIRE_RR;
+    return m_bmFlags & TPMS_ALARM_TIRE_RR;
 }
 
-void can_msg_tpms_t::setTireAlarmRR(bool xEnable)
+void Ct2CanMsgTpms::setTireAlarmRR(bool xEnable)
 {
-	UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_TIRE_RR);
+    UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_TIRE_RR);
 }
 
-bool can_msg_tpms_t::alarmContinuous()
+bool Ct2CanMsgTpms::alarmContinuous()
 {
-	return m_bmFlags & TPMS_ALARM_CONTINUOIS;
+    return m_bmFlags & TPMS_ALARM_CONTINUOIS;
 }
 
-void can_msg_tpms_t::setAlarmContinuous(bool xEnable)
+void Ct2CanMsgTpms::setAlarmContinuous(bool xEnable)
 {
-	UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_CONTINUOIS);
+    UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_CONTINUOIS);
 }
 
-bool can_msg_tpms_t::alarmStrobe()
+bool Ct2CanMsgTpms::alarmStrobe()
 {
-	return m_bmFlags & TPMS_ALARM_STROBE;
+    return m_bmFlags & TPMS_ALARM_STROBE;
 }
 
-void can_msg_tpms_t::setAlarmStrobe(bool xEnable)
+void Ct2CanMsgTpms::setAlarmStrobe(bool xEnable)
 {
-	UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_STROBE);
+    UPDATE_BIT(m_bmFlags, xEnable, TPMS_ALARM_STROBE);
 }

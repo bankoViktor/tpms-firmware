@@ -8,8 +8,9 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "D:/Source/espressif/esp32/tpms_on_esp32/include",
-                "D:/Source/espressif/esp32/tpms_on_esp32/src",
+                "D:/Projects/TPMS/Firmware/tpms/include",
+                "D:/Projects/TPMS/Firmware/tpms/src",
+                "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/Ticker/src",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos",
@@ -231,7 +232,6 @@
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/SimpleBLE/src",
-                "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/Ticker/src",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/USB/src",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/Update/src",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
@@ -244,8 +244,9 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "D:/Source/espressif/esp32/tpms_on_esp32/include",
-                    "D:/Source/espressif/esp32/tpms_on_esp32/src",
+                    "D:/Projects/TPMS/Firmware/tpms/include",
+                    "D:/Projects/TPMS/Firmware/tpms/src",
+                    "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/Ticker/src",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos",
@@ -467,7 +468,6 @@
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/SimpleBLE/src",
-                    "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/Ticker/src",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/USB/src",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/Update/src",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
@@ -481,6 +481,8 @@
             "defines": [
                 "PLATFORMIO=60116",
                 "ARDUINO_uPesy_WROOM",
+                "CORE_DEBUG_LEVEL=ARDUHAL_LOG_LEVEL_VERBOSE",
+                "LOG_LOCAL_LEVEL=ESP_LOG_DEBUG",
                 "HAVE_CONFIG_H",
                 "MBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\"",
                 "UNITY_INCLUDE_CONFIG_H",

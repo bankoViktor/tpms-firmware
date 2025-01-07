@@ -42,5 +42,4 @@ void setup()
 
 void loop()
 {
-    g_uhfReceiver.loopHandle();
 }

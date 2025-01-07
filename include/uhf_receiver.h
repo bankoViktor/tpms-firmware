@@ -32,6 +32,11 @@ private:
     static constexpr size_t PACKET_LENGTH = 18;
     static constexpr uint8_t SYNC_WORD_HIGH = 0xA9;
     static constexpr uint8_t SYNC_WORD_LOW = 0x55;
+    static constexpr uint32_t TASK_STACK_SIZE = 2048;
+    static constexpr UBaseType_t TASK_PRIORITY = 5;
+
+    /// @brief RTOS task handle.
+    TaskHandle_t m_xTaskHandle;
 
     /// @brief Instance of the radio module.
     CC1101 m_module;
@@ -51,15 +56,18 @@ private:
     /// @brief Process received packet.
     void processReceivedPacket();
 
+    /// @brief Static task received packet process callback.
+    static void staticTaskCallback(void *pvData);
+
+    /// @brief Task received packet process callback.
+    void taskCallback();
+
 public:
     /// @brief Default constructor.
     UhfReceiver();
 
     /// @brief Initialize instance.
     void begin();
-
-    /// @brief Loop handle.
-    void loopHandle();
 
     /// @brief Set callback for packet received event.
     /// @param func

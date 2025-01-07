@@ -10,13 +10,33 @@
 #include "uhf_receiver.h"
 #include <manchester_codec.h>
 #include "sensor_packet_reader.h"
-#include <functional>
+#include <RTOS.h>
 
 volatile bool UhfReceiver::s_xReceivedFlag = false;
 
 UhfReceiver::UhfReceiver() : m_module(new Module(PIN_CS, PIN_IRQ, RADIOLIB_NC)),
+                             m_xTaskHandle(NULL),
                              m_dwMsgCount(0)
 {
+}
+
+void UhfReceiver::staticTaskCallback(void *pvData)
+{
+    UhfReceiver *pInst = static_cast<UhfReceiver *>(pvData);
+    pInst->taskCallback();
+}
+
+void UhfReceiver::taskCallback()
+{
+    while (true)
+    {
+        if (s_xReceivedFlag)
+        {
+            s_xReceivedFlag = false;
+
+            processReceivedPacket();
+        }
+    }
 }
 
 void UhfReceiver::begin()
@@ -124,10 +144,26 @@ void UhfReceiver::begin()
     }
 #pragma endregion
 
-#pragma region Receive Callback
-
+    // Receive Callback
     m_module.setPacketReceivedAction(UhfReceiver::packetReceivedCallback);
 
+#pragma region Start Task
+    String taskName = "UHF Receiver " + String((uint32_t)this, HEX);
+    BaseType_t xRet = xTaskCreate(
+        UhfReceiver::staticTaskCallback,
+        taskName.c_str(),
+        TASK_STACK_SIZE,
+        this,
+        TASK_PRIORITY,
+        &m_xTaskHandle);
+    if (xRet != pdPASS)
+    {
+        Serial.print(F("[CC1101] xTaskCreate failed"));
+        while (true)
+        {
+            delay(10);
+        }
+    }
 #pragma endregion
 
 #pragma region Start Receiving
@@ -161,155 +197,114 @@ void UhfReceiver::processReceivedPacket()
     // Increment message counter
     m_dwMsgCount++;
 
-    // you can also read received data as byte array
-    Serial.print(F("[CC1101] Received #"));
-    Serial.print(m_dwMsgCount);
-    Serial.print(F(" - "));
-    size_t nNumBytes = m_module.getPacketLength();
+    int16_t wState = RADIOLIB_ERR_NONE;
 
-    if (nNumBytes > 0)
+    // Read data
+    Serial.printf("[CC1101] Received #%3i - ", m_dwMsgCount);
+    uint8_t abBuffer[PACKET_LENGTH] = {0};
+    wState = m_module.readData(abBuffer, PACKET_LENGTH);
+    if (wState == RADIOLIB_ERR_NONE)
     {
-        if (nNumBytes > PACKET_LENGTH)
-        {
-            Serial.println(F("Buffer overflow"));
-        }
-        else
-        {
-            uint8_t abBuffer[PACKET_LENGTH] = {0};
+        // Pint RSSI (Received Signal Strength Indicator)
+        Serial.print(F("RSSI:"));
+        Serial.print(m_module.getRSSI());
+        Serial.print(F("dBm"));
 
-#pragma region Read Data
-            int16_t wState = m_module.readData(abBuffer, nNumBytes);
-            if (wState == RADIOLIB_ERR_NONE)
+        // Print LQI (Link Quality Indicator)
+        Serial.print(F(", LQI:"));
+        Serial.print(m_module.getLQI());
+
+        // Print data of the packet
+        // Serial.print(F(", Data: "));
+        // for (size_t i = 0; i < nNumBytes; i++)
+        // {
+        //     Serial.printf("%02X", abBuffer[i]);
+        // }
+
+        Serial.print(F(", Decoded:"));
+        constexpr uint32_t DECODED_BUFF_LEN = PACKET_LENGTH * 8 / 4;
+        uint8_t abDecodedData[DECODED_BUFF_LEN] = {0};
+        size_t nDecodeDataLen = DECODED_BUFF_LEN * 8;
+        wState = manchester_decode(abBuffer, PACKET_LENGTH * 8, abDecodedData, &nDecodeDataLen, 0);
+        if (wState == MANCHESTER_SUCCESS)
+        {
+            nDecodeDataLen /= 8;
+
+            // Print decode buffer
+            for (size_t i = 0; i < nDecodeDataLen; i++)
             {
-                // print RSSI (Received Signal Strength Indicator)
-                // of the last received packet
-                Serial.print(F("RSSI:"));
-                Serial.print(m_module.getRSSI());
-                Serial.print(F("dBm"));
+                Serial.printf("%02X", abDecodedData[i]);
+            }
 
-                // print LQI (Link Quality Indicator)
-                // of the last received packet, lower is better
-                Serial.print(F(", LQI:"));
-                Serial.print(m_module.getLQI());
-
-                // print data of the packet
-                // Serial.print(F(", Data: "));
-                // for (size_t i = 0; i < nNumBytes; i++)
+            SensorPacketReader reader(abDecodedData);
+            if (reader.checkCrc())
+            {
+                // if (m_receivedCallback)
                 // {
-                //     Serial.printf("%02X", abBuffer[i]);
+                //     // TODO pass ptr to sensor data structure
+                //     m_receivedCallback();
                 // }
 
-#pragma region Decode
-                Serial.print(F(", Decoded:"));
-                constexpr uint32_t DECODED_BUFF_LEN = PACKET_LENGTH * 8 / 4;
-                uint8_t abDecodedData[DECODED_BUFF_LEN] = {0};
-                size_t nDecodeDataLen = DECODED_BUFF_LEN * 8;
-                wState = manchester_decode(abBuffer, nNumBytes * 8, abDecodedData, &nDecodeDataLen, 0);
-                if (wState == MANCHESTER_SUCCESS)
-                {
-                    nDecodeDataLen /= 8;
+                // Print Sensor ID
+                Serial.printf(", ID:%08X", reader.getSensorId());
 
-                    // Print decode buffer
-                    for (size_t i = 0; i < nDecodeDataLen; i++)
-                    {
-                        Serial.printf("%02X", abDecodedData[i]);
-                    }
+                // Print Flags
+                Serial.printf(", F:%1X", reader.getFlags());
 
-                    SensorPacketReader reader(abDecodedData);
-                    if (reader.checkCrc())
-                    {
-                        if (m_receivedCallback)
-                        {
-                            // TODO pass ptr to sensor data structure
-                            m_receivedCallback();
-                        }
+                // Print Packet Number
+                Serial.printf(", N:%1i", reader.getPacketNumber());
 
-                        // Print Sensor ID
-                        Serial.printf(", ID:%08X", reader.getSensorId());
+                // Print Pressure
+                Serial.printf(", P:%5.1fKPa(%3.1fbar)", reader.getPressureKPa(), reader.getPressureBar());
 
-                        // Print Flags
-                        Serial.printf(", F:%X", reader.getFlags());
+                // Print Temperature
+                Serial.printf(", T:%2.0f°C", reader.getTemperatureC());
 
-                        // Print Packet Number
-                        Serial.printf(", N:%i", reader.getPacketNumber());
+                // Print Unknown Byte
+                Serial.printf(", U:%02X", reader.getUnknownByte());
 
-                        // Print Pressure
-                        Serial.printf(", P:%.1fKPa(%.1fbar)", reader.getPressureKPa(), reader.getPressureBar());
+                // Plot Pressure
+                // Serial2.print(">p:");
+                // Serial2.print(reader.getPressureBar());
+                // Serial2.println();
 
-                        // Print Temperature
-                        Serial.printf(", T:%.0f°C", reader.getTemperatureC());
-
-                        // Print Unknown Byte
-                        Serial.printf(", U:%02X", reader.getUnknownByte());
-
-                        // Plot Pressure
-                        // Serial2.print(">p:");
-                        // Serial2.print(reader.getPressureBar());
-                        // Serial2.println();
-
-                        // Plot Temperature
-                        // Serial2.print(">t:");
-                        // Serial2.print(reader.getTemperatureC());
-                        // Serial2.println();
-                    }
-                    else
-                    {
-                        Serial.print(", CRC error");
-                    }
-
-                    Serial.println();
-                }
-                else
-                {
-                    Serial.print(F("failed, code "));
-                    Serial.println(wState);
-                }
-#pragma endregion
+                // Plot Temperature
+                // Serial2.print(">t:");
+                // Serial2.print(reader.getTemperatureC());
+                // Serial2.println();
             }
             else
             {
-                Serial.print(F("read failed, code "));
-                Serial.println(wState);
+                Serial.print(", CRC error");
             }
-#pragma endregion
+        }
+        else
+        {
+            Serial.print(F("failed, code "));
+            Serial.print(wState);
         }
     }
     else
     {
-        Serial.println("Empty");
+        Serial.print(F("read failed, code "));
+        Serial.print(wState);
     }
+    Serial.println();
 
     // Put module back to listen mode
-#pragma region Start Receiving
-    int16_t wState = m_module.startReceive();
-    if (wState == RADIOLIB_ERR_NONE)
+    wState = m_module.startReceive();
+    if (wState != RADIOLIB_ERR_NONE)
     {
-        Serial.println(F("success!"));
-    }
-    else
-    {
-        Serial.print(F("[CC1101] Start receive ... "));
-        Serial.print(F("failed, code "));
+        Serial.print(F("[CC1101] Re-start receive failed, code "));
         Serial.println(wState);
         while (true)
         {
             delay(10);
         }
     }
-#pragma endregion
 }
 
 void UhfReceiver::setReceivedCallback(received_callback_f func)
 {
     m_receivedCallback = func;
-}
-
-void UhfReceiver::loopHandle()
-{
-    if (s_xReceivedFlag)
-    {
-        s_xReceivedFlag = false;
-
-        processReceivedPacket();
-    }
 }

@@ -8,11 +8,11 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "D:/Projects/TPMS/Firmware/tpms/include",
-                "D:/Projects/TPMS/Firmware/tpms/src",
-                "D:/Projects/TPMS/Firmware/tpms/.pio/libdeps/upesy_wroom/Manchester-codec/include",
-                "D:/Projects/TPMS/Firmware/tpms/.pio/libdeps/upesy_wroom/Manchester-codec/src",
-                "D:/Projects/TPMS/Firmware/tpms/.pio/libdeps/upesy_wroom/RadioLib/src",
+                "D:/Projects/TPMS/Firmware/tpms-core/include",
+                "D:/Projects/TPMS/Firmware/tpms-core/src",
+                "D:/Projects/TPMS/Firmware/tpms-core/.pio/libdeps/upesy_wroom/Manchester-codec/include",
+                "D:/Projects/TPMS/Firmware/tpms-core/.pio/libdeps/upesy_wroom/Manchester-codec/src",
+                "D:/Projects/TPMS/Firmware/tpms-core/.pio/libdeps/upesy_wroom/RadioLib/src",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                 "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
@@ -247,11 +247,11 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "D:/Projects/TPMS/Firmware/tpms/include",
-                    "D:/Projects/TPMS/Firmware/tpms/src",
-                    "D:/Projects/TPMS/Firmware/tpms/.pio/libdeps/upesy_wroom/Manchester-codec/include",
-                    "D:/Projects/TPMS/Firmware/tpms/.pio/libdeps/upesy_wroom/Manchester-codec/src",
-                    "D:/Projects/TPMS/Firmware/tpms/.pio/libdeps/upesy_wroom/RadioLib/src",
+                    "D:/Projects/TPMS/Firmware/tpms-core/include",
+                    "D:/Projects/TPMS/Firmware/tpms-core/src",
+                    "D:/Projects/TPMS/Firmware/tpms-core/.pio/libdeps/upesy_wroom/Manchester-codec/include",
+                    "D:/Projects/TPMS/Firmware/tpms-core/.pio/libdeps/upesy_wroom/Manchester-codec/src",
+                    "D:/Projects/TPMS/Firmware/tpms-core/.pio/libdeps/upesy_wroom/RadioLib/src",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                     "C:/Users/VBanko/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",

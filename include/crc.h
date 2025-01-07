@@ -12,13 +12,21 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// @brief Calculate CRC8
-/// @param pabData Pointer to the data buffer.
+/// @param pbData Pointer to the data buffer.
 /// @param nLength Count bytes of the data bytes for calculation.
 /// @param bPoly Polinom byte
 /// @param bInit Init byte
 /// @param bXorOut XOR byte for result
 /// @return Calculated CRC8 byte
-uint8_t crc8(const uint8_t *pabData, size_t nLength, uint8_t bPoly, uint8_t bInit, uint8_t bXorOut);
+uint8_t crc8(const uint8_t *pbData, size_t nLength, uint8_t bPoly, uint8_t bInit, uint8_t bXorOut);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

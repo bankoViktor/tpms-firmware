@@ -30,7 +30,6 @@
 #define SENSOR_PACKET_READER__H
 
 #include <stdint.h>
-#include "crc.h"
 
 /// @brief Reader class for the sensor packet buffer.
 class SensorPacketReader

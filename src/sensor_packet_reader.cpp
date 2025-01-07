@@ -8,6 +8,7 @@
  */
 
 #include "sensor_packet_reader.h"
+#include <crc.h>
 
 SensorPacketReader::SensorPacketReader(const uint8_t *pabData)
     : m_pabData(pabData)

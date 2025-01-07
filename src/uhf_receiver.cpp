@@ -12,7 +12,7 @@
 #include "sensor_packet_reader.h"
 #include <RTOS.h>
 
-volatile bool UhfReceiver::s_xReceivedFlag = false;
+EventGroupHandle_t UhfReceiver::m_eventGroupHandle = nullptr;
 
 UhfReceiver::UhfReceiver() : m_module(new Module(PIN_CS, PIN_IRQ, RADIOLIB_NC)),
                              m_xTaskHandle(NULL),
@@ -30,13 +30,17 @@ void UhfReceiver::taskCallback()
 {
     while (true)
     {
-        if (s_xReceivedFlag)
-        {
-            s_xReceivedFlag = false;
+        xEventGroupWaitBits(
+            m_eventGroupHandle,
+            EVENT_BIT_PACKET_RECEIVED,
+            pdTRUE,
+            pdFALSE,
+            portMAX_DELAY);
 
-            processReceivedPacket();
-        }
+        processReceivedPacket();
     }
+
+    portYIELD();
 }
 
 void UhfReceiver::begin()
@@ -147,6 +151,9 @@ void UhfReceiver::begin()
     // Receive Callback
     m_module.setPacketReceivedAction(UhfReceiver::packetReceivedCallback);
 
+    // Create Event Group
+    m_eventGroupHandle = xEventGroupCreate();
+
 #pragma region Start Task
     String taskName = "UHF Receiver " + String((uint32_t)this, HEX);
     BaseType_t xRet = xTaskCreate(
@@ -183,13 +190,17 @@ void UhfReceiver::begin()
         }
     }
 #pragma endregion
-
-    s_xReceivedFlag = false;
 }
 
 void IRAM_ATTR UhfReceiver::packetReceivedCallback()
 {
-    s_xReceivedFlag = true;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xEventGroupSetBitsFromISR(
+        m_eventGroupHandle,
+        EVENT_BIT_PACKET_RECEIVED,
+        &xHigherPriorityTaskWoken);
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void UhfReceiver::processReceivedPacket()

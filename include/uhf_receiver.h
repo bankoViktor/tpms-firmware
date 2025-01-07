@@ -34,15 +34,16 @@ private:
     static constexpr uint8_t SYNC_WORD_LOW = 0x55;
     static constexpr uint32_t TASK_STACK_SIZE = 2048;
     static constexpr UBaseType_t TASK_PRIORITY = 5;
+    static constexpr uint32_t EVENT_BIT_PACKET_RECEIVED = (1 << 0);
 
     /// @brief RTOS task handle.
     TaskHandle_t m_xTaskHandle;
 
+    /// @brief RTOS event group handle.
+    static EventGroupHandle_t m_eventGroupHandle;
+
     /// @brief Instance of the radio module.
     CC1101 m_module;
-
-    /// @brief Flag to indicate that a packet was received.
-    static volatile bool s_xReceivedFlag;
 
     /// @brief Callback for data received event.
     received_callback_f m_receivedCallback;

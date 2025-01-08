@@ -30,17 +30,18 @@ private:
     static constexpr uint32_t PIN_CS = 5;
     static constexpr uint32_t PIN_IRQ = 15;
     static constexpr size_t PACKET_LENGTH = 18;
+    static constexpr uint32_t DECODED_BUFF_LEN = PACKET_LENGTH * 8 / 4;
     static constexpr uint8_t SYNC_WORD_HIGH = 0xA9;
     static constexpr uint8_t SYNC_WORD_LOW = 0x55;
-    static constexpr uint32_t TASK_STACK_SIZE = 2048;
+    static constexpr uint32_t TASK_STACK_SIZE = 4096;
     static constexpr UBaseType_t TASK_PRIORITY = 5;
     static constexpr uint32_t EVENT_BIT_PACKET_RECEIVED = (1 << 0);
 
     /// @brief RTOS task handle.
-    TaskHandle_t m_xTaskHandle;
+    TaskHandle_t m_hTask;
 
     /// @brief RTOS event group handle.
-    static EventGroupHandle_t m_eventGroupHandle;
+    static EventGroupHandle_t m_hEventGroup;
 
     /// @brief Instance of the radio module.
     CC1101 m_module;
@@ -62,6 +63,9 @@ private:
 
     /// @brief Task received packet process callback.
     void taskCallback();
+
+    /// @brief Switch radio module to receiving mode.
+    void switchToReceiving();
 
 public:
     /// @brief Default constructor.

@@ -1,0 +1,5 @@
+
+DRAM_ATTR static const cc1101_register_init_t s_cc1101_reg_inits[] =
+{
+   
+};

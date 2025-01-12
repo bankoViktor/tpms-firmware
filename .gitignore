@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=vs,platformio
 
 build/
+sdkconfig.*.old
 
 ### PlatformIO ###
 .pioenvs

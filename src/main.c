@@ -13,6 +13,7 @@
  // ESP IDF
 #include <esp_log.h>
 #include <driver/spi_master.h>
+#include <driver/gpio.h>
  // RTOS
 #include <freertos/FreeRTOS.h>
  // Tasks
@@ -44,16 +45,7 @@ static void config_spi_master()
         .quadhd_io_num = -1,
         .max_transfer_sz = 64,
     };
-
-    esp_err_t err = spi_bus_initialize(APP_SPI_HOST, &buscfg, SPI_DMA_CH_AUTO);
-    if (err == ESP_OK)
-    {
-        g_app_flags |= APP_FLAG_SPI_OK;
-    }
-    else
-    {
-        ESP_LOGE(TAG, "SPI bus init fail (code %i)", err);
-    }
+    ESP_ERROR_CHECK(spi_bus_initialize(APP_SPI_HOST, &buscfg, SPI_DMA_CH_AUTO));
 }
 
 /// @brief Starting tasks defined in task array.
@@ -82,7 +74,7 @@ static void start_tasks()
         }
         else
         {
-            ESP_LOGE(TAG, "Could not allocate memory for task '%s' (%i)", params->name, ret);
+            ESP_LOGE(TAG, "Could not allocate memory for task '%s' (0x%X)", params->name, ret);
         }
     }
 }
@@ -91,11 +83,14 @@ static void start_tasks()
 void app_main()
 {
     esp_log_level_set("*", ESP_LOG_INFO);
-    esp_log_level_set("app", ESP_LOG_DEBUG);
-    esp_log_level_set("uhf_receiver", ESP_LOG_DEBUG);
-    esp_log_level_set("cc1101", ESP_LOG_DEBUG);
+    esp_log_level_set("app", ESP_LOG_VERBOSE);
+    esp_log_level_set("uhf_receiver", ESP_LOG_VERBOSE);
+    esp_log_level_set("cc1101", ESP_LOG_VERBOSE);
 
     g_app_flags = 0;
+
+    // Install ISR service
+    ESP_ERROR_CHECK(gpio_install_isr_service(0));
 
     // Init shared hardware
     config_spi_master();

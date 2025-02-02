@@ -10,6 +10,6 @@
 #ifndef APP_UTILS__H
 #define APP_UTILS__H
 
-#define countof(p)    (sizeof(p) / sizeof(*p))
+#define countof(ptr)    (sizeof(ptr) / sizeof(*ptr))
 
 #endif // APP_UTILS__H

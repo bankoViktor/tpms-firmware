@@ -14,21 +14,10 @@
 #include <stdint.h>
 
 
-#define APP_SPI_HOST    VSPI_HOST
-#define APP_SPI_MISO    19
-#define APP_SPI_MOSI    23
-#define APP_SPI_CLK     18
+#define APP_SPI_HOST    SPI2_HOST
+#define APP_SPI_MOSI    11
+#define APP_SPI_CLK     12
+#define APP_SPI_MISO    13
 
-
- /// @brief Application flags.
-typedef enum app_flags_t
-{
-    APP_FLAG_SPI_OK = (1 << 0),
-    APP_FLAG_UHF_TASK_RUNNING = (1 << 1),
-    APP_FLAG_UHF_ADDED_TO_SPI = (1 << 2)
-} app_flags_t;
-
-/// @brief Application flags bit mask.
-extern uint32_t g_app_flags;
 
 #endif // APP__H

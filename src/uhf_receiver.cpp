@@ -13,7 +13,7 @@
 #include <RTOS.h>
 #include <esp_log.h>
 
-static const char *TAG = "uhf";
+constexpr const char *TAG = "uhf";
 
 EventGroupHandle_t UhfReceiver::m_hEventGroup = nullptr;
 
@@ -31,10 +31,10 @@ void UhfReceiver::staticTaskCallback(void *pvData)
 
 void UhfReceiver::taskCallback()
 {
-    switchToReceiving();
-
     while (true)
     {
+        switchToReceiving();
+
         xEventGroupWaitBits(
             m_hEventGroup,
             EVENT_BIT_PACKET_RECEIVED,
@@ -43,8 +43,6 @@ void UhfReceiver::taskCallback()
             portMAX_DELAY);
 
         processReceivedPacket();
-
-        switchToReceiving();
     }
 }
 
@@ -67,7 +65,7 @@ void UhfReceiver::begin()
     }
     else
     {
-        ESP_LOGE(TAG, "Radio module begin fail (code &i)", wState);
+        ESP_LOGE(TAG, "Radio module begin fail (code %i)", wState);
         return;
     }
 
@@ -133,10 +131,6 @@ void UhfReceiver::begin()
         ESP_LOGE(TAG, "Create Event Group fail");
         return;
     }
-
-    // TODO try attach iterrupt handler
-    // gpio_install_isr_service(0);  // Устанавливаем ISR-сервис
-    // gpio_isr_handler_add(INTERRUPT_PIN, interruptHandler, NULL);
 
     ESP_LOGI(TAG, "Initialize success");
 
@@ -267,7 +261,7 @@ void UhfReceiver::switchToReceiving()
     }
 }
 
-void UhfReceiver::setReceivedCallback(received_callback_f func)
+void UhfReceiver::setReceivedCallback(ReceivedCallback_f func)
 {
     m_receivedCallback = func;
 }

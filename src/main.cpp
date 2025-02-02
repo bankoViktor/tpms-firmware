@@ -5,6 +5,38 @@
  * @date    10.11.2024
  * @brief   Entry point of the application.
  ********************************************************************************
+ * ESP32-S3-DevKitC-1: (ESP32-S3-WROOM-1-N16R8)
+ *
+ * https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/index.html
+ * https://randomnerdtutorials.com/esp32-s3-devkitc-pinout-guide/
+ *
+ *                                 +----------+
+ *                                 | UUUUUUUU |
+ *                              +--+----------+--+
+ *                            x | 3V3        GND | x
+ *                            x | 3V3         43 | U0TXD |----> ESP32-Prog
+ *         ESP32-Prog <---- RST | RST         44 | U0RXD |
+ *                              | 4            1 |
+ *                              | 5            2 |
+ *                              | 6           42 | JTAG_TMS |
+ *                              | 7           41 | JTAG_DTI |----> ESP32-Prog
+ *                              | 15          40 | JTAG_DTO |
+ *                              | 16          39 | JTAG_TCK |
+ *         CC1101 <----|   GDO0 | 17          38 | RGB LED (built-in RGB led)
+ *           # 2       | SPI_CS | 18          37 |
+ *                              | 8           36 |
+ *                              | 3           35 |
+ *                              | 46           0 | BOOT ----> ESP32-Prog
+ *         CC1101 <----|   GDO0 | 9           45 |
+ *           # 1       | SPI_CS | 10          48 |
+ *                   | SPI_MOSI | 11          47 |
+ *       CC1101 <----|  SPI_CLK | 12          21 |
+ *      #1 & #2      | SPI_MISO | 13          20 |
+ *                              | 14          19 |
+ *                            x | 5V         GND | x
+ *                            x | GND        GND | x
+ *                              +-+----+--+----+-+
+ *                                +----+  +----+
  */
 
 #include <Arduino.h>
@@ -18,9 +50,8 @@
 constexpr uint32_t FIRMWARE_VERSION = MAKE_VERSION(1, 0, 0);
 constexpr const char *FIRMWARE_BUILD_DATE = __DATE__;
 constexpr const char *REPO_URL = "https://github.com/bankoViktor";
-
 constexpr uint32_t UART_BAUDRATE = 115200;
-static const char *TAG = "app";
+constexpr const char *TAG = "app";
 
 UhfReceiver g_uhfReceiver;
 

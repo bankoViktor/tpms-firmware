@@ -7,7 +7,7 @@
  ********************************************************************************
  * Espressif ESP32-S3-DevKitC-1 (ESP32-S3-WROOM-1-N16R8)
  * https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/index.html
- * 
+ *
  *                                 +----------+
  *                                 | UUUUUUUU |
  *                              +--+----------+--+
@@ -20,25 +20,25 @@
  *                              | 7           41 | JTAG_DTI |----> ESP32-Prog
  *                              | 15          40 | JTAG_DTO |
  *                              | 16          39 | JTAG_TCK |
- *       * CC1101 <----|   GDO0 | 17          38 | RGB LED (built-in RGB led)
- *       *   # 2       | SPI_CS | 18          37 |
+ *                              | 17          38 | RGB LED (built-in RGB led)
+ *                              | 18          37 |
  *                              | 8           36 |
  *                              | 3           35 |
  *                              | 46           0 | BOOT ----> ESP32-Prog
- *         CC1101 <----|   GDO0 | 9           45 |
- *           # 1       | SPI_CS | 10          48 |
- *                   | SPI_MOSI | 11          47 |
- *       CC1101 <----|  SPI_CLK | 12          21 |
- *      #1 & #2      | SPI_MISO | 13          20 |
+ *                   |     GDO0 | 9           45 |
+ *                   |   SPI_CS | 10          48 |
+ *       CC1101 <----| SPI_MOSI | 11          47 |
+ *                   |  SPI_CLK | 12          21 |
+ *                   | SPI_MISO | 13          20 |
  *                              | 14          19 |
  *                            x | 5V         GND | x
  *                            x | GND        GND | x
  *                              +-+----+--+----+-+
  *                                +----+  +----+
- * 
+ *
  * Espressif ESP32-DevKitC V4 (ESP32-WROOM-32/ESP32-WROOM-32D)
  * https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/index.html
- * 
+ *
  *                                 +----------+
  *                                 | UUUUUUUU |
  *                              +--+----------+--+
@@ -60,11 +60,40 @@
  *                            x | 9           15 |
  *                            x | 10           8 | x
  *                            x | 11           7 | x
- *                            x | 5V           6 | x   CC1101 #1 <----|   GDO0*
+ *                            x | 5V           6 | x
  *                              +-----+----+-----+
  *                                    +----+
  */
 
-#include <stdio.h>
+// Run command 'ESP-IDF: Add vscode Configuration Folder' for fix IDE
+// IntellSence errors.
+#include "app_config.h"
+#include "can_transmitter_srvc.h"
+#include "tpms_core.h"
+#include "uhf_receiver_srvc.h"
+#include <driver/gpio.h>
+#include <esp_log.h>
 
-void app_main() {}
+static tpms_core_t s_tpms_core;
+static app_config_t s_app_config;
+
+void app_main(void) {
+  // Log configuration
+  // esp_log_level_set("cc1101", ESP_LOG_INFO);
+  // esp_log_level_set("uhf_srv", ESP_LOG_INFO);
+  // esp_log_level_set("can_srv", ESP_LOG_INFO);
+  // esp_log_level_set("tpms_core", ESP_LOG_INFO);
+  esp_log_level_set("app_cfg", ESP_LOG_DEBUG);
+
+  ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LEVEL1));
+
+  // App configuration
+  ESP_ERROR_CHECK(app_config_restore(&s_app_config));
+  ESP_ERROR_CHECK(tpms_core_init(&s_tpms_core, &s_app_config.tpms_config));
+
+  // Services
+  ESP_ERROR_CHECK(uhf_receiver_start_srvc(&s_tpms_core));
+  ESP_ERROR_CHECK(can_transmitter_start_srvc(&s_tpms_core));
+
+  vTaskSuspend(NULL);
+}

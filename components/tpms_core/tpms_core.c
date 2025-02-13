@@ -14,7 +14,7 @@
 #define TAKE_MUTEX_OR_ERR_RETURN()                                             \
   while (0) {                                                                  \
     ESP_LOGV(TAG, "Take mutext");                                              \
-    if (xSemaphoreTake(tpms_core->mutex, TPMS_CORE_TAKE_MUTEX_TIMEOUT) ==      \
+    if (xSemaphoreTake(s_tpms_core.mutex, TPMS_CORE_TAKE_MUTEX_TIMEOUT) ==     \
         pdFAIL) {                                                              \
       esp_err_t err_rc_ = ESP_ERR_TIMEOUT;                                     \
       ESP_LOGE(TAG, "Take Mutex timeout (%s)", esp_err_to_name(err_rc_));      \
@@ -25,7 +25,7 @@
 #define GIVE_MUTEX()                                                           \
   while (0) {                                                                  \
     ESP_LOGV(TAG, "Give mutext");                                              \
-    xSemaphoreGive(tpms_core->mutex);                                          \
+    xSemaphoreGive(s_tpms_core.mutex);                                         \
   }
 #define SET_BIT(bm, mask) ((bm) |= (mask))
 #define RESET_BIT(bm, mask) ((bm) &= ~(mask))
@@ -38,16 +38,20 @@
 
 static const char *TAG = "tpms_core";
 
-static void get_sensor_by_id(tpms_core_t *tpms_core, tpms_sensor_id_t sensor_id,
-                             tpms_sensor_t **sensor_out) {
-  assert(tpms_core != NULL);
+static tpms_core_t s_tpms_core;
+
+static void get_sensor_by_id(tpms_sensor_id_t sensor_id,
+                             tpms_sensor_t **sensor_out,
+                             tpms_sensor_num_t *sensor_num_out) {
   assert(sensor_id != 0);
   assert(sensor_out != NULL);
 
   tpms_sensor_t *target_sensor = NULL;
 
-  for (uint8_t i = 0; i < SENSOR_TIRE_MAX; i++) {
-    tpms_sensor_t *sensor = &tpms_core->sensors[i];
+  tpms_sensor_num_t sensor_num = 0;
+  for (; sensor_num < SENSOR_TIRE_MAX; sensor_num++) {
+    tpms_sensor_t *sensor = &s_tpms_core.sensors[sensor_num];
+
     if (sensor->id == sensor_id) {
       target_sensor = sensor;
       break;
@@ -55,39 +59,41 @@ static void get_sensor_by_id(tpms_core_t *tpms_core, tpms_sensor_id_t sensor_id,
   }
 
   *sensor_out = target_sensor;
+  if (sensor_num_out != NULL) {
+    *sensor_num_out = sensor_num;
+  }
 }
 
-static void update_sensor_state(tpms_core_t *tpms_core, tpms_sensor_t *sensor) {
-  assert(tpms_core != NULL);
+static void update_sensor_state(tpms_sensor_t *sensor) {
   assert(sensor != NULL);
 
-  if (sensor->id != 0) {
+  if (sensor->id == 0) {
     RESET_BIT(sensor->flags,
               SENSOR_FLAG_CAUTION_ALARM | SENSOR_FLAG_CRITICAL_ALARM);
   } else {
     uint8_t is_caution_pressure =
         sensor->data.pressure_kpa <
-            (tpms_core->config->pressure_kpa_normal -
-             tpms_core->config->pressure_kpa_caution_dev) ||
+            (s_tpms_core.config->pressure_kpa_normal -
+             s_tpms_core.config->pressure_kpa_caution_dev) ||
         sensor->data.pressure_kpa >
-            (tpms_core->config->pressure_kpa_normal +
-             tpms_core->config->pressure_kpa_caution_dev);
+            (s_tpms_core.config->pressure_kpa_normal +
+             s_tpms_core.config->pressure_kpa_caution_dev);
 
     uint8_t is_critical_pressure =
         sensor->data.pressure_kpa <
-            (tpms_core->config->pressure_kpa_normal -
-             tpms_core->config->pressure_kpa_critical_dev) ||
+            (s_tpms_core.config->pressure_kpa_normal -
+             s_tpms_core.config->pressure_kpa_critical_dev) ||
         sensor->data.pressure_kpa >
-            (tpms_core->config->pressure_kpa_normal +
-             tpms_core->config->pressure_kpa_critical_dev);
+            (s_tpms_core.config->pressure_kpa_normal +
+             s_tpms_core.config->pressure_kpa_critical_dev);
 
     uint8_t is_caution_temperature =
         sensor->data.temperature_c >
-        tpms_core->config->temperature_c_caution_thr;
+        s_tpms_core.config->temperature_c_caution_thr;
 
     uint8_t is_critical_temperature =
         sensor->data.temperature_c >
-        tpms_core->config->temperature_c_critical_thr;
+        s_tpms_core.config->temperature_c_critical_thr;
 
     UPDATE_BIT(sensor->flags, SENSOR_FLAG_CAUTION_ALARM,
                is_caution_pressure || is_caution_temperature);
@@ -96,38 +102,95 @@ static void update_sensor_state(tpms_core_t *tpms_core, tpms_sensor_t *sensor) {
   }
 }
 
-static void update_core_state(tpms_core_t *tpms_core) {
-  assert(tpms_core != NULL);
-
+static void update_core_state() {
   uint8_t is_critical_alarm = 0;
 
   // Update sensors state
   tpms_sensor_num_t sensor_num = 0;
   for (; sensor_num < SENSOR_TIRE_MAX; sensor_num++) {
-    tpms_sensor_t *sensor = &tpms_core->sensors[sensor_num];
-    update_sensor_state(tpms_core, sensor);
-    is_critical_alarm =
-        is_critical_alarm || (sensor->flags & SENSOR_FLAG_CRITICAL_ALARM);
+    tpms_sensor_t *sensor = &s_tpms_core.sensors[sensor_num];
+
+    update_sensor_state(sensor);
+
+    if (sensor->flags & SENSOR_FLAG_VALID_DATA) {
+      is_critical_alarm =
+          is_critical_alarm || (sensor->flags & SENSOR_FLAG_CRITICAL_ALARM);
+    }
   }
 
   // Update master state
-  tpms_core->master_alarm =
+  s_tpms_core.master_alarm =
       is_critical_alarm ? TPMS_ALARM_CRITICAL : TPMS_ALARM_NONE;
 
   ESP_LOGD(TAG, "Core state updated");
 }
 
-esp_err_t tpms_core_init(tpms_core_t *tpms_core,
-                         const app_tpms_config_t *app_cfg) {
-  if (tpms_core == NULL || app_cfg == NULL) {
+static void sensor_timer_callback(void *arg) {
+  assert(arg != NULL);
+  tpms_sensor_t *sensor = (tpms_sensor_t *)arg;
+
+  RESET_BIT(sensor->flags, SENSOR_FLAG_VALID_DATA);
+  update_core_state();
+
+  ESP_LOGD(TAG, "Timer: reset data for %08lX", sensor->id);
+}
+
+static esp_err_t sensor_timer_create(tpms_sensor_t *sensor) {
+  if (sensor == NULL) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  tpms_core->config = app_cfg;
+  esp_timer_create_args_t timer_args = {.callback = &sensor_timer_callback,
+                                        .arg = sensor,
+                                        .name = "sensor valid data"};
+  esp_err_t ret =
+      esp_timer_create(&timer_args, &sensor->valid_data_timer_handle);
+
+  ESP_LOGD(TAG, "Timer: create timer for %08lX", sensor->id);
+  return ret;
+}
+
+static esp_err_t sensor_timer_delete(tpms_sensor_t *sensor) {
+  if (sensor == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  esp_timer_stop(sensor->valid_data_timer_handle);
+  ESP_ERROR_CHECK(esp_timer_delete(sensor->valid_data_timer_handle));
+  sensor->valid_data_timer_handle = 0;
+
+  update_core_state();
+
+  ESP_LOGD(TAG, "Timer: delete timer for %08lX", sensor->id);
+  return ESP_OK;
+}
+
+static esp_err_t sensor_timer_restart(tpms_sensor_t *sensor, uint64_t time_us) {
+  if (sensor == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  esp_timer_stop(sensor->valid_data_timer_handle);
+  ESP_ERROR_CHECK(
+      esp_timer_start_once(sensor->valid_data_timer_handle, time_us));
+
+  update_core_state();
+
+  ESP_LOGD(TAG, "Timer: restart timer for %08lX", sensor->id);
+  return ESP_OK;
+}
+
+esp_err_t tpms_core_init(const app_tpms_config_t *app_cfg,
+                         tpms_core_t **tpms_core_out) {
+  if (app_cfg == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  s_tpms_core.config = app_cfg;
 
   // Create Mutex
-  tpms_core->mutex = xSemaphoreCreateMutex();
-  if (tpms_core->mutex == NULL) {
+  s_tpms_core.mutex = xSemaphoreCreateMutex();
+  if (s_tpms_core.mutex == NULL) {
     return ESP_ERR_NO_MEM;
   }
 
@@ -136,21 +199,23 @@ esp_err_t tpms_core_init(tpms_core_t *tpms_core,
   for (; sensor_num < SENSOR_TIRE_MAX; sensor_num++) {
     tpms_sensor_id_t sensor_id = app_cfg->sensor_ids[sensor_num];
     if (sensor_id != 0) {
-      esp_err_t ret =
-          tpms_core_register_sensor(tpms_core, sensor_id, sensor_num);
+      esp_err_t ret = tpms_core_register_sensor(sensor_id, sensor_num);
       if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failded to registry sensor (%s)", esp_err_to_name(ret));
       }
     }
   }
 
+  if (tpms_core_out != NULL) {
+    *tpms_core_out = &s_tpms_core;
+  }
+
   return ESP_OK;
 }
 
-esp_err_t tpms_core_register_sensor(tpms_core_t *tpms_core,
-                                    tpms_sensor_id_t sensor_id,
+esp_err_t tpms_core_register_sensor(tpms_sensor_id_t sensor_id,
                                     tpms_sensor_num_t sensor_num) {
-  if (tpms_core == NULL || sensor_id == 0 || sensor_num >= SENSOR_TIRE_MAX) {
+  if (sensor_id == 0 || sensor_num >= SENSOR_TIRE_MAX) {
     return ESP_ERR_INVALID_ARG;
   }
 
@@ -159,15 +224,24 @@ esp_err_t tpms_core_register_sensor(tpms_core_t *tpms_core,
   esp_err_t ret = ESP_OK;
 
   // Find sensor
-  tpms_sensor_t *sensor;
-  get_sensor_by_id(tpms_core, sensor_id, &sensor);
-  if (sensor == NULL) {
+  tpms_sensor_t *found_sensor;
+  tpms_sensor_num_t found_sensor_num;
+  get_sensor_by_id(sensor_id, &found_sensor, &found_sensor_num);
+  if (found_sensor == NULL) {
     // Set data
-    sensor = &tpms_core->sensors[sensor_num];
+    tpms_sensor_t *sensor = &s_tpms_core.sensors[sensor_num];
     sensor->id = sensor_id;
     sensor->flags = 0;
+
+    // Create timer
+    ESP_ERROR_CHECK(sensor_timer_create(sensor));
+
     ESP_LOGI(TAG, "Registered sensor %08lX", sensor_id);
   } else {
+    ESP_LOGW(
+        TAG,
+        "Try register dublicat sensor %08lX of current tire %i (new tire %i)",
+        found_sensor->id, found_sensor_num, sensor_num);
     ret = ESP_ERR_NOT_ALLOWED;
   }
 
@@ -176,9 +250,8 @@ esp_err_t tpms_core_register_sensor(tpms_core_t *tpms_core,
   return ret;
 }
 
-esp_err_t tpms_core_unregister_sensor(tpms_core_t *tpms_core,
-                                      tpms_sensor_id_t sensor_id) {
-  if (tpms_core == NULL || sensor_id == 0) {
+esp_err_t tpms_core_unregister_sensor(tpms_sensor_id_t sensor_id) {
+  if (sensor_id == 0) {
     return ESP_ERR_INVALID_ARG;
   }
 
@@ -188,14 +261,19 @@ esp_err_t tpms_core_unregister_sensor(tpms_core_t *tpms_core,
 
   // Find sensor
   tpms_sensor_t *sensor;
-  get_sensor_by_id(tpms_core, sensor_id, &sensor);
+  get_sensor_by_id(sensor_id, &sensor, NULL);
   if (sensor != NULL) {
+    // Delete timer
+    ESP_ERROR_CHECK(sensor_timer_delete(sensor));
+
     // Set data
     sensor->id = 0;
     sensor->flags = 0;
+
     ESP_LOGI(TAG, "Unregistered sensor %08lX", sensor_id);
   } else {
     ret = ESP_ERR_NOT_ALLOWED;
+    ESP_LOGW(TAG, "Try unregister of unknown sensor %08lX", sensor_id);
   }
 
   GIVE_MUTEX();
@@ -203,10 +281,9 @@ esp_err_t tpms_core_unregister_sensor(tpms_core_t *tpms_core,
   return ret;
 }
 
-esp_err_t tpms_core_update_sensor_data(tpms_core_t *tpms_core,
-                                       tpms_sensor_id_t sensor_id,
+esp_err_t tpms_core_update_sensor_data(tpms_sensor_id_t sensor_id,
                                        const tpms_sensor_data_t *sensor_data) {
-  if (tpms_core == NULL || sensor_id == 0 || sensor_data == NULL) {
+  if (sensor_id == 0 || sensor_data == NULL) {
     return ESP_ERR_INVALID_ARG;
   }
 
@@ -214,16 +291,31 @@ esp_err_t tpms_core_update_sensor_data(tpms_core_t *tpms_core,
 
   // Find sensor
   tpms_sensor_t *sensor;
-  get_sensor_by_id(tpms_core, sensor_id, &sensor);
+  get_sensor_by_id(sensor_id, &sensor, NULL);
   if (sensor != NULL) {
-
     // Copy new data of the sensor
     memcpy(&sensor->data, sensor_data, sizeof(tpms_sensor_data_t));
     SET_BIT(sensor->flags, SENSOR_FLAG_VALID_DATA);
     ESP_LOGD(TAG, "Updated data of sensor %08lX", sensor->id);
 
+    // Timer config
+    if (s_tpms_core.config->valid_data_time_us == 0) {
+      // Delete timer
+      if (sensor->valid_data_timer_handle) {
+        ESP_ERROR_CHECK(sensor_timer_delete(sensor));
+      }
+    } else {
+      // Restart timer
+      if (!sensor->valid_data_timer_handle) {
+        ESP_ERROR_CHECK(sensor_timer_create(sensor));
+      }
+
+      ESP_ERROR_CHECK(
+          sensor_timer_restart(sensor, s_tpms_core.config->valid_data_time_us));
+    }
+
     // Update TPMS core state
-    update_core_state(tpms_core);
+    update_core_state();
   }
 
   GIVE_MUTEX();
@@ -231,12 +323,11 @@ esp_err_t tpms_core_update_sensor_data(tpms_core_t *tpms_core,
   return ESP_OK;
 }
 
-esp_err_t tpms_core_get_sensor_data(const tpms_core_t *tpms_core,
-                                    tpms_sensor_num_t sensor_num,
+esp_err_t tpms_core_get_sensor_data(tpms_sensor_num_t sensor_num,
                                     bool *data_valid_out, bool *tire_alarm_out,
                                     tpms_sensor_data_t *data_out) {
-  if (tpms_core == NULL || sensor_num >= SENSOR_TIRE_MAX ||
-      data_valid_out == NULL || tire_alarm_out == NULL || data_out == NULL) {
+  if (sensor_num >= SENSOR_TIRE_MAX || data_valid_out == NULL ||
+      tire_alarm_out == NULL || data_out == NULL) {
     return ESP_ERR_INVALID_ARG;
   }
 
@@ -248,7 +339,7 @@ esp_err_t tpms_core_get_sensor_data(const tpms_core_t *tpms_core,
   *tire_alarm_out = 0;
 
   // Get Sensor
-  const tpms_sensor_t *sensor = &tpms_core->sensors[sensor_num];
+  const tpms_sensor_t *sensor = &s_tpms_core.sensors[sensor_num];
   if (sensor->id != 0x00) {
     if (sensor->flags & SENSOR_FLAG_VALID_DATA) {
       *data_valid_out = (sensor->flags & SENSOR_FLAG_VALID_DATA);

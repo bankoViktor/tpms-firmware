@@ -35,46 +35,39 @@ typedef struct tpms_core_t {
 } tpms_core_t;
 
 /// @brief Initialize TPMS core.
-/// @param tpms_core TPMS core.
 /// @param app_cfg Application configuration.
+/// @param tpms_core_out Output TPMS core.
 /// @return Status code.
-esp_err_t tpms_core_init(tpms_core_t *tpms_core,
-                         const app_tpms_config_t *app_cfg);
+esp_err_t tpms_core_init(const app_tpms_config_t *app_cfg,
+                         tpms_core_t **tpms_core_out);
 
 /// @brief Register specified sensor by sensor identifier and sensor number.
-/// @param tpms_core TPMS core.
 /// @param sensor_id Sensor identifier.
 /// @param sensor_num Number of the sensor.
 /// @return Status code.
-esp_err_t tpms_core_register_sensor(tpms_core_t *tpms_core,
-                                    tpms_sensor_id_t sensor_id,
+esp_err_t tpms_core_register_sensor(tpms_sensor_id_t sensor_id,
                                     tpms_sensor_num_t sensor_num);
 
 /// @brief Unregister specified sensor by sensor identifier.
-/// @param tpms_core TPMS core.
 /// @param sensor_id Sensor identifier.
 /// @return Status code.
-esp_err_t tpms_core_unregister_sensor(tpms_core_t *tpms_core,
-                                      tpms_sensor_id_t sensor_id);
+esp_err_t tpms_core_unregister_sensor(tpms_sensor_id_t sensor_id);
 
 /// @brief Update data of the sensor by sensor identifier.
-/// @param tpms_core TPMS core.
 /// @param sensor_id Sensor identifier.
 /// @param sensor_data_out New data of the specified sensor.
 /// @return Status code.
 esp_err_t
-tpms_core_update_sensor_data(tpms_core_t *tpms_core, tpms_sensor_id_t sensor_id,
+tpms_core_update_sensor_data(tpms_sensor_id_t sensor_id,
                              const tpms_sensor_data_t *sensor_data_out);
 
 /// @brief Update data of the sensor by sensor identifier.
-/// @param tpms_core TPMS core.
 /// @param sensor_num Number of the sensor.
 /// @param data_valid_out Output sensor validatiton flag.
 /// @param tire_alarm_out Output sensor alarm flag.
 /// @param data_out Output sensor data.
 /// @return Status code.
-esp_err_t tpms_core_get_sensor_data(const tpms_core_t *tpms_core,
-                                    tpms_sensor_num_t sensor_num,
+esp_err_t tpms_core_get_sensor_data(tpms_sensor_num_t sensor_num,
                                     bool *data_valid_out, bool *tire_alarm_out,
                                     tpms_sensor_data_t *data_out);
 

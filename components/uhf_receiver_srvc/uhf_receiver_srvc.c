@@ -149,8 +149,7 @@ static void process_packet(const uint8_t *data, float rssi_dbm, uint8_t lqi,
       .rssi = rssi_dbm,
       .temperature_c = mx_data.temperature_c,
   };
-  ret =
-      tpms_core_update_sensor_data(tpms_core, mx_data.sensor_id, &sensor_data);
+  ret = tpms_core_update_sensor_data(mx_data.sensor_id, &sensor_data);
   if (ret != ESP_OK) {
     ESP_LOGW(TAG, "Failed to update sensor %08lX (%s)", mx_data.sensor_id,
              esp_err_to_name(ret));

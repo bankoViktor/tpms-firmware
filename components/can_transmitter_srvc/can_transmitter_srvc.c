@@ -39,7 +39,7 @@ static void fill_sensor_data(const tpms_core_t *tpms_core,
   bool data_valid;
   bool tire_alarm;
   tpms_sensor_data_t sensor_data;
-  esp_err_t ret = tpms_core_get_sensor_data(tpms_core, sensor_num, &data_valid,
+  esp_err_t ret = tpms_core_get_sensor_data(sensor_num, &data_valid,
                                             &tire_alarm, &sensor_data);
   if (ret == ESP_ERR_NOT_ALLOWED) {
     return;

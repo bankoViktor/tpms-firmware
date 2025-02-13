@@ -10,6 +10,7 @@
 #ifndef TPMS_SENSOR__H
 #define TPMS_SENSOR__H
 
+#include <esp_timer.h>
 #include <stdint.h>
 
 /// @brief Data of the TPMS sensor.
@@ -31,9 +32,10 @@ typedef enum tpms_sensor_flag_t {
 
 /// @brief TPMS sensor.
 typedef struct tpms_sensor_t {
-  tpms_sensor_id_t id;      // Sensor identifier.
-  tpms_sensor_data_t data;  // Data of the sensor.
-  tpms_sensor_flag_t flags; // Flags of the sensor.
+  tpms_sensor_id_t id;                        // Sensor identifier.
+  tpms_sensor_data_t data;                    // Data of the sensor.
+  tpms_sensor_flag_t flags;                   // Flags of the sensor.
+  esp_timer_handle_t valid_data_timer_handle; // Valid data timer handle.
 } tpms_sensor_t;
 
 /// @brief Index of the TPMS Sensors.

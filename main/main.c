@@ -74,7 +74,6 @@
 #include <driver/gpio.h>
 #include <esp_log.h>
 
-static tpms_core_t s_tpms_core;
 static app_config_t s_app_config;
 
 void app_main(void) {
@@ -89,7 +88,9 @@ void app_main(void) {
 
   // App configuration
   ESP_ERROR_CHECK(app_config_restore(&s_app_config));
-  ESP_ERROR_CHECK(tpms_core_init(&s_tpms_core, &s_app_config.tpms_config));
+
+  tpms_core_t *tpms_core;
+  ESP_ERROR_CHECK(tpms_core_init(&s_app_config.tpms_config, &tpms_core));
 
   // Services
   ESP_ERROR_CHECK(uhf_receiver_start_srvc(&s_tpms_core));

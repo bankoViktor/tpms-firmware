@@ -22,13 +22,18 @@ typedef struct tpms_sensor_data_t {
 /// @brief Sensor identifier of the TPMS sensor.
 typedef uint32_t tpms_sensor_id_t;
 
+/// @brief Flags of a sensor.
+typedef enum tpms_sensor_flag_t {
+  SENSOR_FLAG_VALID_DATA = (1 << 0),     // Valid of the sensor data.
+  SENSOR_FLAG_CAUTION_ALARM = (1 << 1),  // Caution Alarm.
+  SENSOR_FLAG_CRITICAL_ALARM = (1 << 2), // Critical Alarm.
+} tpms_sensor_flag_t;
+
 /// @brief TPMS sensor.
 typedef struct tpms_sensor_t {
-  tpms_sensor_id_t id;     // Sensor identifier.
-  tpms_sensor_data_t data; // Data of the sensor.
-  uint8_t valid_data;      // Valid flag of the sensor data.
-  uint8_t caution_alarm;   // Tire Caution Alarm flag.
-  uint8_t critical_alarm;  // Tire Critical Alarm flag.
+  tpms_sensor_id_t id;      // Sensor identifier.
+  tpms_sensor_data_t data;  // Data of the sensor.
+  tpms_sensor_flag_t flags; // Flags of the sensor.
 } tpms_sensor_t;
 
 /// @brief Index of the TPMS Sensors.

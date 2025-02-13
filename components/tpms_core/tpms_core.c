@@ -27,6 +27,14 @@
     ESP_LOGV(TAG, "Give mutext");                                              \
     xSemaphoreGive(tpms_core->mutex);                                          \
   }
+#define SET_BIT(bm, mask) ((bm) |= (mask))
+#define RESET_BIT(bm, mask) ((bm) &= ~(mask))
+#define UPDATE_BIT(bm, mask, expr)                                             \
+  if (expr) {                                                                  \
+    SET_BIT(bm, mask);                                                         \
+  } else {                                                                     \
+    RESET_BIT(bm, mask);                                                       \
+  }
 
 static const char *TAG = "tpms_core";
 
@@ -53,9 +61,9 @@ static void update_sensor_state(tpms_core_t *tpms_core, tpms_sensor_t *sensor) {
   assert(tpms_core != NULL);
   assert(sensor != NULL);
 
-  if (sensor->id == 0) {
-    sensor->caution_alarm = 0;
-    sensor->critical_alarm = 0;
+  if (sensor->id != 0) {
+    RESET_BIT(sensor->flags,
+              SENSOR_FLAG_CAUTION_ALARM | SENSOR_FLAG_CRITICAL_ALARM);
   } else {
     uint8_t is_caution_pressure =
         sensor->data.pressure_kpa <
@@ -81,8 +89,10 @@ static void update_sensor_state(tpms_core_t *tpms_core, tpms_sensor_t *sensor) {
         sensor->data.temperature_c >
         tpms_core->config->temperature_c_critical_thr;
 
-    sensor->caution_alarm = (is_caution_pressure || is_caution_temperature);
-    sensor->critical_alarm = (is_critical_pressure || is_critical_temperature);
+    UPDATE_BIT(sensor->flags, SENSOR_FLAG_CAUTION_ALARM,
+               is_caution_pressure || is_caution_temperature);
+    UPDATE_BIT(sensor->flags, SENSOR_FLAG_CRITICAL_ALARM,
+               is_critical_pressure || is_critical_temperature);
   }
 }
 
@@ -96,8 +106,8 @@ static void update_core_state(tpms_core_t *tpms_core) {
   for (; sensor_num < SENSOR_TIRE_MAX; sensor_num++) {
     tpms_sensor_t *sensor = &tpms_core->sensors[sensor_num];
     update_sensor_state(tpms_core, sensor);
-
-    is_critical_alarm = is_critical_alarm || sensor->critical_alarm;
+    is_critical_alarm =
+        is_critical_alarm || (sensor->flags & SENSOR_FLAG_CRITICAL_ALARM);
   }
 
   // Update master state
@@ -155,7 +165,7 @@ esp_err_t tpms_core_register_sensor(tpms_core_t *tpms_core,
     // Set data
     sensor = &tpms_core->sensors[sensor_num];
     sensor->id = sensor_id;
-    sensor->valid_data = 0;
+    sensor->flags = 0;
     ESP_LOGI(TAG, "Registered sensor %08lX", sensor_id);
   } else {
     ret = ESP_ERR_NOT_ALLOWED;
@@ -182,7 +192,7 @@ esp_err_t tpms_core_unregister_sensor(tpms_core_t *tpms_core,
   if (sensor != NULL) {
     // Set data
     sensor->id = 0;
-    sensor->valid_data = 0;
+    sensor->flags = 0;
     ESP_LOGI(TAG, "Unregistered sensor %08lX", sensor_id);
   } else {
     ret = ESP_ERR_NOT_ALLOWED;
@@ -209,7 +219,7 @@ esp_err_t tpms_core_update_sensor_data(tpms_core_t *tpms_core,
 
     // Copy new data of the sensor
     memcpy(&sensor->data, sensor_data, sizeof(tpms_sensor_data_t));
-    sensor->valid_data = 1;
+    SET_BIT(sensor->flags, SENSOR_FLAG_VALID_DATA);
     ESP_LOGD(TAG, "Updated data of sensor %08lX", sensor->id);
 
     // Update TPMS core state
@@ -234,13 +244,17 @@ esp_err_t tpms_core_get_sensor_data(const tpms_core_t *tpms_core,
 
   esp_err_t ret = ESP_OK;
 
+  *data_valid_out = 0;
+  *tire_alarm_out = 0;
+
   // Get Sensor
   const tpms_sensor_t *sensor = &tpms_core->sensors[sensor_num];
   if (sensor->id != 0x00) {
-    *data_valid_out = sensor->valid_data;
-    *tire_alarm_out = sensor->caution_alarm || sensor->caution_alarm;
+    if (sensor->flags & SENSOR_FLAG_VALID_DATA) {
+      *data_valid_out = (sensor->flags & SENSOR_FLAG_VALID_DATA);
+      *tire_alarm_out = (sensor->flags & SENSOR_FLAG_CAUTION_ALARM) ||
+                        (sensor->flags & SENSOR_FLAG_CRITICAL_ALARM);
 
-    if (sensor->valid_data) {
       memcpy(data_out, &sensor->data, sizeof(tpms_sensor_data_t));
     }
   } else {

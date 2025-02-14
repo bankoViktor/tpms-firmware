@@ -19,6 +19,8 @@
 #define TPMS_CORE_TAKE_MUTEX_TIMEOUT pdMS_TO_TICKS(500)
 #endif
 
+#define SIDSTR "%08" PRIX32
+
 /// @brief Types of the alarm light.
 typedef enum tpms_alarm_type_t {
   TPMS_ALARM_NONE,

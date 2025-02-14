@@ -132,7 +132,7 @@ static void sensor_timer_callback(void *arg) {
   RESET_BIT(sensor->flags, SENSOR_FLAG_VALID_DATA);
   update_core_state();
 
-  ESP_LOGD(TAG, "Timer: reset data for %08lX", sensor->id);
+  ESP_LOGD(TAG, "Timer: reset data for " SIDSTR, sensor->id);
 }
 
 static esp_err_t sensor_timer_create(tpms_sensor_t *sensor) {
@@ -146,7 +146,7 @@ static esp_err_t sensor_timer_create(tpms_sensor_t *sensor) {
   esp_err_t ret =
       esp_timer_create(&timer_args, &sensor->valid_data_timer_handle);
 
-  ESP_LOGD(TAG, "Timer: create timer for %08lX", sensor->id);
+  ESP_LOGD(TAG, "Timer: create timer for " SIDSTR, sensor->id);
   return ret;
 }
 
@@ -161,7 +161,7 @@ static esp_err_t sensor_timer_delete(tpms_sensor_t *sensor) {
 
   update_core_state();
 
-  ESP_LOGD(TAG, "Timer: delete timer for %08lX", sensor->id);
+  ESP_LOGD(TAG, "Timer: delete timer for " SIDSTR, sensor->id);
   return ESP_OK;
 }
 
@@ -176,7 +176,7 @@ static esp_err_t sensor_timer_restart(tpms_sensor_t *sensor, uint64_t time_us) {
 
   update_core_state();
 
-  ESP_LOGD(TAG, "Timer: restart timer for %08lX", sensor->id);
+  ESP_LOGD(TAG, "Timer: restart timer for " SIDSTR, sensor->id);
   return ESP_OK;
 }
 
@@ -236,11 +236,11 @@ esp_err_t tpms_core_register_sensor(tpms_sensor_id_t sensor_id,
     // Create timer
     ESP_ERROR_CHECK(sensor_timer_create(sensor));
 
-    ESP_LOGI(TAG, "Registered sensor %08lX", sensor_id);
+    ESP_LOGI(TAG, "Registered sensor " SIDSTR, sensor_id);
   } else {
     ESP_LOGW(
         TAG,
-        "Try register dublicat sensor %08lX of current tire %i (new tire %i)",
+        "Try register dublicat sensor " SIDSTR " of current tire %i (new tire %i)",
         found_sensor->id, found_sensor_num, sensor_num);
     ret = ESP_ERR_NOT_ALLOWED;
   }
@@ -270,10 +270,10 @@ esp_err_t tpms_core_unregister_sensor(tpms_sensor_id_t sensor_id) {
     sensor->id = 0;
     sensor->flags = 0;
 
-    ESP_LOGI(TAG, "Unregistered sensor %08lX", sensor_id);
+    ESP_LOGI(TAG, "Unregistered sensor " SIDSTR, sensor_id);
   } else {
     ret = ESP_ERR_NOT_ALLOWED;
-    ESP_LOGW(TAG, "Try unregister of unknown sensor %08lX", sensor_id);
+    ESP_LOGW(TAG, "Try unregister of unknown sensor " SIDSTR, sensor_id);
   }
 
   GIVE_MUTEX();
@@ -296,7 +296,7 @@ esp_err_t tpms_core_update_sensor_data(tpms_sensor_id_t sensor_id,
     // Copy new data of the sensor
     memcpy(&sensor->data, sensor_data, sizeof(tpms_sensor_data_t));
     SET_BIT(sensor->flags, SENSOR_FLAG_VALID_DATA);
-    ESP_LOGD(TAG, "Updated data of sensor %08lX", sensor->id);
+    ESP_LOGD(TAG, "Updated data of sensor " SIDSTR, sensor->id);
 
     // Timer config
     if (s_tpms_core.config->valid_data_time_us == 0) {

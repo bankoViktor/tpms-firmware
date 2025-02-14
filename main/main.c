@@ -71,8 +71,10 @@
 #include "can_transmitter_srvc.h"
 #include "tpms_core.h"
 #include "uhf_receiver_srvc.h"
+#include "wifi_ap.h"
 #include <driver/gpio.h>
 #include <esp_log.h>
+#include <nvs_flash.h>
 
 static app_config_t s_app_config;
 
@@ -82,8 +84,10 @@ void app_main(void) {
   // esp_log_level_set("uhf_srv", ESP_LOG_INFO);
   // esp_log_level_set("can_srv", ESP_LOG_INFO);
   // esp_log_level_set("tpms_core", ESP_LOG_INFO);
-  esp_log_level_set("app_cfg", ESP_LOG_DEBUG);
+  // esp_log_level_set("app_cfg", ESP_LOG_DEBUG);
+  // esp_log_level_set("wifi_ap", ESP_LOG_DEBUG);
 
+  ESP_ERROR_CHECK(nvs_flash_init());
   ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LEVEL1));
 
   // App configuration
@@ -92,9 +96,13 @@ void app_main(void) {
   tpms_core_t *tpms_core;
   ESP_ERROR_CHECK(tpms_core_init(&s_app_config.tpms_config, &tpms_core));
 
+  app_wifi_config_t *wifi_cfg = &s_app_config.wifi_config;
+  uint8_t wifi_pwd_suppress = 0;
+
   // Services
-  ESP_ERROR_CHECK(uhf_receiver_start_srvc(&s_tpms_core));
-  ESP_ERROR_CHECK(can_transmitter_start_srvc(&s_tpms_core));
+  ESP_ERROR_CHECK(wifi_softap_srvc(wifi_cfg, wifi_pwd_suppress));
+  ESP_ERROR_CHECK(uhf_receiver_start_srvc(tpms_core));
+  ESP_ERROR_CHECK(can_transmitter_start_srvc(tpms_core));
 
   vTaskSuspend(NULL);
 }

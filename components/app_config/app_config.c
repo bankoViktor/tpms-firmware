@@ -14,7 +14,7 @@
 
 #define MX_SENSOR_PSN1615_ID 0x9A846232
 #define MX_SENSOR_PSN1597_ID 0x5A895736
-#define WIFI_SSID "TPMS"
+#define WIFI_SSID "CT2-TPMS"
 #define WIFI_PW "12345678"
 
 static const char *TAG = "app_cfg";

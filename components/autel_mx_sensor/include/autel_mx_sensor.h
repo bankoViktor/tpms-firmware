@@ -7,11 +7,12 @@
  ********************************************************************************
  * Manufacturer:    Autel
  * Model:           MX-Sensor
+ * Protocol:        Chery Tiggo 7 | 07/2018-12/2022 (433MHz 802000021AA)
  * HW:              8306
  * SW:              V6.52
- * Protocol:        Chery Tiggo 4 / 06/2019 - 12/2023 (433MHz 802000121AA)
- * AC/PI:           FF00/03CA
- * PV/PT/MI:        3.02/26.0/B3626
+ * AC/PI:           FF00/02B2
+ * MI:              B1591
+ * 
  * Packet scheme:   IIIIIIII FN PP TT FF CC
  *   where:
  *   I  - sensor ID (32-bit)

@@ -12,8 +12,40 @@
 #include <esp_log.h>
 #include <memory.h>
 
+// Protocol:        Chery Tiggo 7 | 07/2018-12/2022 (433MHz 802000021AA)
+
+/**
+ * HW:              8306
+ * SW:              V6.52
+ * AC/PI:           FF00/02B2
+ * PV/PT/MI:        3.01/26.0/B1591
+ */
 #define MX_SENSOR_PSN1615_ID 0x9A846232
+
+/**
+ * HW:              8306
+ * SW:              V6.52
+ * AC/PI:           FF00/02B2
+ * PV/PT/MI:        3.01/25.0/B1591
+ */
 #define MX_SENSOR_PSN1597_ID 0x5A895736
+
+/**
+ * HW:              8306
+ * SW:              V6.52
+ * AC/PI:           FF00/02B2
+ * PV/PT/MI:        3.03/25.0/B1591
+ */
+#define MX_SENSOR_PSN1986_ID 0x68D57BAE
+
+/**
+ * HW:              8306
+ * SW:              V6.52
+ * AC/PI:           FF00/02B2
+ * PV/PT/MI:        3.04/26.0/B1591
+ */
+#define MX_SENSOR_PSN1813_ID 0xC8A65DF7
+
 #define WIFI_SSID "CT2-TPMS"
 #define WIFI_PW "12345678"
 

@@ -23,7 +23,7 @@
 #define CT2_CAN2_BITRATE 500E3;
 
 /// @brief CAN message IDs.
-enum ct2_can_msgid_t {
+typedef enum ct2_can_msgid_t {
   /// @brief Parking radar (3 rear sensors only)
   CT2_CAN2_MSGID_PARKING_RADAR = 0x440,
 
@@ -35,7 +35,7 @@ enum ct2_can_msgid_t {
 
   /// @brief Tire Pressure Monitoring System
   CT2_CAN2_MSGID_TPMS = 0x51B,
-};
+} ct2_can_msgid_t;
 
 /// @brief Modes of the TPMS Warn light on IC.
 typedef enum ct2_msg_alarm_light_mode_t {

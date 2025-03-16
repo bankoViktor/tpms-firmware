@@ -210,7 +210,7 @@ static void src_proc(void *arg) {
                      CC1101_PACKET_LENGTH / 2);
           }
         } else {
-          ESP_LOGW(TAG, "Decode fail (%i)", mc_ret);
+          ESP_LOGD(TAG, "Decode fail (%i)", mc_ret);
         }
 
         // Back to RX mode

@@ -14,14 +14,14 @@
  *                            x | 3V3        GND | x
  *                            x | 3V3         43 | U0TXD |----> ESP32-Prog
  *         ESP32-Prog <---- RST | EN          44 | U0RXD |
- *                      | CANTX | 4            1 |
- *     SN65HVD230 <---- | CANRX | 5            2 |
+ *                              | 4            1 |
+ *                              | 5            2 |
  *                              | 6           42 | JTAG_TMS |
  *                              | 7           41 | JTAG_DTI |----> ESP32-Prog
  *                              | 15          40 | JTAG_DTO |
  *                              | 16          39 | JTAG_TCK |
- *                              | 17          38 | RGB LED (built-in RGB led)
- *                              | 18          37 |
+ *                      | CANTX | 17          38 | RGB LED (built-in RGB led)
+ *     SN65HVD230 <---- | CANRX | 18          37 |
  *                              | 8           36 |
  *                              | 3           35 |
  *                              | 46           0 | BOOT ----> ESP32-Prog

@@ -1,25 +1,25 @@
 /**
  ********************************************************************************
- * @file    uhf_receiver_srvc.h
+ * @file    srvc_uhf_rx.h
  * @author  Viktor Banko S. (bankviktor14@gmail.com)
  * @date    04.02.2025
  * @brief   Header file of the UHF receiver service.
  ********************************************************************************
  */
 
-#ifndef UHF_RECEIVER_SRVC__H
-#define UHF_RECEIVER_SRVC__H
+#ifndef SRVC_UHF_RX__H
+#define SRVC_UHF_RX__H
 
-#include <esp_err.h>
 #include "tpms_core.h"
+#include <esp_err.h>
 
-#define SRVC_UHF_RCV_STACK_DEPTH 4096
-#define SRVC_UHF_RCV_PRIORITY 5
-#define SRVC_UHF_RCV_INTERVAL pdMS_TO_TICKS(50)
+#define SRVC_UHF_RX_STACK_DEPTH 4096
+#define SRVC_UHF_RX_PRIORITY 5
+#define SRVC_UHF_RX_INTERVAL pdMS_TO_TICKS(50)
 
 /// @brief Start of the UHF Receiver service in separete task.
 /// @param tpms_core TPMS core.
 /// @return Status code.
-esp_err_t uhf_receiver_start_srvc(tpms_core_t *tpms_core);
+esp_err_t srvc_uhf_rx(tpms_core_t *tpms_core);
 
 #endif

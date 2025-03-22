@@ -11,8 +11,8 @@
  * HW:              8306
  * SW:              V6.52
  * AC/PI:           FF00/02B2
- * MI:              B1591
- * 
+ * MI (M_ID):       B1591
+ *
  * Packet scheme:   IIIIIIII FN PP TT FF CC
  *   where:
  *   I  - sensor ID (32-bit)
@@ -25,7 +25,7 @@
  *   FF - Flags:
  *        * 0x01 -
  *        * 0x02 -
- *   CC - CRC8 0-8 bytes (poly 0x07, init 0xF1)
+ *   CC - CRC8 0-7 bytes (poly 0x07, init 0xF1)
  */
 
 #ifndef AUTEL_MX_SENSOR__H

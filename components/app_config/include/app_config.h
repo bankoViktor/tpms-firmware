@@ -31,7 +31,7 @@ typedef struct app_tpms_config_t {
   float pressure_kpa_critical_dev;    // Pressure (KPa) err alarm deviation.
   uint8_t temperature_c_caution_thr;  // Temp. (C) Caution alarm threshold.
   uint8_t temperature_c_critical_thr; // Temp. (C) Critical alarm threshold.
-  uint64_t valid_data_time_us;        // Time (msec) for reset valid flag.
+  uint64_t valid_data_time_us;        // Time (micro sec) for reset valid flag.
 } app_tpms_config_t;
 
 /// @brief Application configuration.

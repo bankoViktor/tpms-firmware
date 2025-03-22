@@ -1,13 +1,13 @@
 /**
  ********************************************************************************
- * @file    uhf_receiver_srvc.c
+ * @file    srvc_uhf_rx.c
  * @author  Viktor Banko S. (bankviktor14@gmail.com)
  * @date    04.02.2025
  * @brief   Source file of the UHF receiver service.
  ********************************************************************************
  */
 
-#include "uhf_receiver_srvc.h"
+#include "srvc_uhf_rx.h"
 #include "autel_mx_sensor.h"
 #include "cc1101.h"
 #include "manchester_codec.h"
@@ -221,21 +221,21 @@ static void src_proc(void *arg) {
       }
     }
 
-    vTaskDelay(SRVC_UHF_RCV_INTERVAL);
+    vTaskDelay(SRVC_UHF_RX_INTERVAL);
   }
 
   ESP_LOGI(TAG, "Service stopped");
   vTaskDelete(0);
 }
 
-esp_err_t uhf_receiver_start_srvc(tpms_core_t *tpms_core) {
+esp_err_t srvc_uhf_rx(tpms_core_t *tpms_core) {
   assert(tpms_core != NULL);
 
   ESP_LOGD(TAG, "UHF Receiver service starting...");
 
   BaseType_t rtos_ret =
-      xTaskCreate(src_proc, "uhf_srv", SRVC_UHF_RCV_STACK_DEPTH, tpms_core,
-                  SRVC_UHF_RCV_PRIORITY, NULL);
+      xTaskCreate(src_proc, "uhf_srv", SRVC_UHF_RX_STACK_DEPTH, tpms_core,
+                  SRVC_UHF_RX_PRIORITY, NULL);
   if (rtos_ret != pdPASS) {
     ESP_LOGE(TAG, "Create service task fail (RTOS error: %i)", rtos_ret);
     return ESP_FAIL;

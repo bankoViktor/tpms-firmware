@@ -1,13 +1,13 @@
 /**
  ********************************************************************************
- * @file    wifi_ap.c
+ * @file    srvc_wifi_softap.c
  * @author  Viktor Banko S. (bankviktor14@gmail.com)
  * @date    04.02.2025
  * @brief   Source file of the Wi-Fi AP.
  ********************************************************************************
  */
 
-#include "wifi_ap.h"
+#include "srvc_wifi_softap.h"
 #include <esp_event.h>
 #include <esp_log.h>
 #include <esp_mac.h>
@@ -20,7 +20,7 @@ static const char *TAG = "wifi_ap";
 #define WIFI_CHANNEL 1
 #define WIFI_MAX_STA_CONN 4
 
-esp_err_t wifi_softap_srvc(const app_wifi_config_t *app_wifi_cfg,
+esp_err_t srvc_wifi_softap(const app_wifi_config_t *app_wifi_cfg,
                            uint8_t is_wifi_pwd_suppress) {
   if (app_wifi_cfg == NULL) {
     return ESP_ERR_INVALID_ARG;

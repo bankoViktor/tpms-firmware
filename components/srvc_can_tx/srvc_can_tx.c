@@ -1,13 +1,13 @@
 /**
  ********************************************************************************
- * @file    can_transmitter_srvc.c
+ * @file    srvc_can_tx.c
  * @author  Viktor Banko S. (bankviktor14@gmail.com)
  * @date    06.02.2025
  * @brief   Source file of the CAN transmitter service.
  ********************************************************************************
  */
 
-#include "can_transmitter_srvc.h"
+#include "srvc_can_tx.h"
 #include "ct2_can.h"
 #include "tpms_core.h"
 #include <driver/twai.h>
@@ -169,7 +169,7 @@ static void src_proc(void *arg) {
     while (true) {
       transmit_message(tpms_core);
 
-      vTaskDelay(SRVC_CAN_TMTR_INTERVAL);
+      vTaskDelay(SRVC_CAN_TX_INTERVAL);
     }
   }
 
@@ -177,13 +177,13 @@ static void src_proc(void *arg) {
   vTaskDelete(0);
 }
 
-esp_err_t can_transmitter_start_srvc(tpms_core_t *tpms_core) {
+esp_err_t srvc_can_tx(tpms_core_t *tpms_core) {
   assert(tpms_core != NULL);
   ESP_LOGD(TAG, "CAN Transmitter service starting...");
 
   BaseType_t rtos_ret =
-      xTaskCreatePinnedToCore(src_proc, "can_srv", SRVC_CAN_TMTR_STACK_DEPTH,
-                              tpms_core, SRVC_CAN_TMTR_PRIORITY, NULL, 0);
+      xTaskCreatePinnedToCore(src_proc, "can_srv", SRVC_CAN_TX_STACK_DEPTH,
+                              tpms_core, SRVC_CAN_TX_PRIORITY, NULL, 0);
   if (rtos_ret != pdPASS) {
     ESP_LOGE(TAG, "Create service task fail (RTOS error: %i)", rtos_ret);
     return ESP_FAIL;

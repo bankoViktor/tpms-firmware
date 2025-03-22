@@ -68,10 +68,10 @@
 // Run command 'ESP-IDF: Add vscode Configuration Folder' for fix IDE
 // IntellSence errors.
 #include "app_config.h"
-#include "can_transmitter_srvc.h"
+#include "srvc_can_tx.h"
+#include "srvc_uhf_rx.h"
+#include "srvc_wifi_softap.h"
 #include "tpms_core.h"
-#include "uhf_receiver_srvc.h"
-#include "wifi_ap.h"
 #include <driver/gpio.h>
 #include <esp_log.h>
 #include <nvs_flash.h>
@@ -100,9 +100,9 @@ void app_main(void) {
   uint8_t wifi_pwd_suppress = 0;
 
   // Services
-  ESP_ERROR_CHECK(wifi_softap_srvc(wifi_cfg, wifi_pwd_suppress));
-  ESP_ERROR_CHECK(uhf_receiver_start_srvc(tpms_core));
-  ESP_ERROR_CHECK(can_transmitter_start_srvc(tpms_core));
+  ESP_ERROR_CHECK(srvc_wifi_softap(wifi_cfg, wifi_pwd_suppress));
+  ESP_ERROR_CHECK(srvc_uhf_rx(tpms_core));
+  ESP_ERROR_CHECK(srvc_can_tx(tpms_core));
 
   vTaskSuspend(NULL);
 }

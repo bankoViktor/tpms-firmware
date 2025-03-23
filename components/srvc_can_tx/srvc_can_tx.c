@@ -22,6 +22,8 @@
 
 static const char *TAG = "can_srv";
 
+static uint32_t s_flags;
+
 static twai_message_t s_twai_msg = {
     .identifier = CT2_CAN2_MSGID_TPMS,
     .extd = 0,
@@ -72,30 +74,8 @@ static void fill_sensor_data(const tpms_core_t *tpms_core,
   }
 }
 
-static void transmit_message(const tpms_core_t *tpms_core) {
+static void fill_data(const tpms_core_t *tpms_core) {
   assert(tpms_core != NULL);
-
-  // Read TWAI state
-  twai_status_info_t twai_status;
-  ESP_ERROR_CHECK(twai_get_status_info(&twai_status));
-  switch (twai_status.state) {
-
-  case TWAI_STATE_STOPPED:
-    ESP_ERROR_CHECK(twai_start());
-    break;
-
-  case TWAI_STATE_BUS_OFF:
-    ESP_LOGW(TAG, "TWAI bus off");
-    ESP_ERROR_CHECK(twai_initiate_recovery());
-    return;
-
-  case TWAI_STATE_RECOVERING:
-    return;
-
-  case TWAI_STATE_RUNNING:
-  default:
-    break;
-  }
 
   // Fill data of the CT2 message
   ct2_msg_tpms_config_t ct2_msg_cfg = CT2_CAN_MSG_TPMS_CONFIG_DEFAULT();
@@ -126,11 +106,55 @@ static void transmit_message(const tpms_core_t *tpms_core) {
 
   // Fill data to TWAI message
   ct2_can_tpms_config_msg(&ct2_msg_cfg, s_twai_msg.data);
+}
+
+static void transmit_message(const tpms_core_t *tpms_core) {
+  assert(tpms_core != NULL);
+
+  // Read TWAI state
+  twai_status_info_t twai_status;
+  ESP_ERROR_CHECK(twai_get_status_info(&twai_status));
+  switch (twai_status.state) {
+
+  case TWAI_STATE_STOPPED:
+    ESP_ERROR_CHECK(twai_start());
+    break;
+
+  case TWAI_STATE_BUS_OFF:
+    ESP_ERROR_CHECK(twai_initiate_recovery());
+    return;
+
+  case TWAI_STATE_RECOVERING:
+    return;
+
+  case TWAI_STATE_RUNNING:
+    break;
+
+  default:
+    break;
+  }
+
+  // Fill data for TX
+  fill_data(tpms_core);
 
   // Transmit
   esp_err_t ret = twai_transmit(&s_twai_msg, CAN_TX_TIMEOUT_TICKS);
-  if (ret != ESP_OK) {
-    ESP_LOGW(TAG, "Failded to transmit TWAI (%s)", esp_err_to_name(ret));
+  if (ret == ESP_OK) {
+
+    if (s_flags & SRVC_CAN_TX_FLAG_LINK_FAULT) {
+      ESP_LOGI(TAG, "TWAI bus recover");
+    }
+
+    // Clear fault flag
+    s_flags &= ~SRVC_CAN_TX_FLAG_LINK_FAULT;
+  } else if (ret != ESP_OK) {
+
+    if (!(s_flags & SRVC_CAN_TX_FLAG_LINK_FAULT)) {
+      ESP_LOGW(TAG, "Failded to transmit TWAI (%s)", esp_err_to_name(ret));
+    }
+
+    // Set fault flag
+    s_flags |= SRVC_CAN_TX_FLAG_LINK_FAULT;
   }
 }
 
@@ -176,6 +200,8 @@ static void src_proc(void *arg) {
   ESP_LOGI(TAG, "Service stopped");
   vTaskDelete(0);
 }
+
+uint32_t rvc_can_tx_get_flags() { return s_flags; }
 
 esp_err_t srvc_can_tx(tpms_core_t *tpms_core) {
   assert(tpms_core != NULL);

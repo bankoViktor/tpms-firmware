@@ -16,10 +16,15 @@
 #define SRVC_CAN_TX_STACK_DEPTH 4096
 #define SRVC_CAN_TX_PRIORITY 4
 #define SRVC_CAN_TX_INTERVAL pdMS_TO_TICKS(100)
+#define SRVC_CAN_TX_FLAG_LINK_FAULT (1 << 0)
 
 /// @brief Start of the CAN Bus Transmitter service in separete task.
 /// @param tpms_core TPMS core.
 /// @return Status code.
 esp_err_t srvc_can_tx(tpms_core_t *tpms_core);
+
+/// @brief Return service flags.
+/// @return Bit mask of the service flags.
+uint32_t rvc_can_tx_get_flags();
 
 #endif

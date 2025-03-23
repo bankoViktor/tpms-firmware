@@ -22,7 +22,7 @@
  *                              | 16          39 | JTAG_TCK |
  *                      | CANTX | 17          38 | RGB LED (built-in RGB led)
  *     SN65HVD230 <---- | CANRX | 18          37 |
- *                              | 8           36 |
+ *      WIFI PW SUPPRESS button | 8           36 |
  *                              | 3           35 |
  *                              | 46           0 | BOOT ----> ESP32-Prog
  *                   |     GDO0 | 9           45 |
@@ -97,10 +97,9 @@ void app_main(void) {
   ESP_ERROR_CHECK(tpms_core_init(&s_app_config.tpms_config, &tpms_core));
 
   app_wifi_config_t *wifi_cfg = &s_app_config.wifi_config;
-  uint8_t wifi_pwd_suppress = 0;
 
   // Services
-  ESP_ERROR_CHECK(srvc_wifi_softap(wifi_cfg, wifi_pwd_suppress));
+  ESP_ERROR_CHECK(srvc_wifi_softap(wifi_cfg));
   ESP_ERROR_CHECK(srvc_uhf_rx(tpms_core));
   ESP_ERROR_CHECK(srvc_can_tx(tpms_core));
 

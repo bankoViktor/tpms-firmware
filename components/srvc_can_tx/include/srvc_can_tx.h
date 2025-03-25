@@ -21,7 +21,7 @@
 /// @brief Start of the CAN Bus Transmitter service in separete task.
 /// @param tpms_core TPMS core.
 /// @return Status code.
-esp_err_t srvc_can_tx(tpms_core_t *tpms_core);
+esp_err_t srvc_can_tx_init(tpms_core_t *tpms_core);
 
 /// @brief Return service flags.
 /// @return Bit mask of the service flags.

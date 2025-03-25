@@ -16,6 +16,6 @@
 /// @brief Start Wi-Fi Access Point.
 /// @param app_wifi_cfg Wi-Fi configuration of the application.
 /// @return Status code.
-esp_err_t srvc_wifi_softap(const app_wifi_config_t *app_wifi_cfg);
+esp_err_t srvc_wifi_softap_init(const app_wifi_config_t *app_wifi_cfg);
 
 #endif

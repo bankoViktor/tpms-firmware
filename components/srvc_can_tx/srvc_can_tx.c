@@ -203,7 +203,7 @@ static void src_proc(void *arg) {
 
 uint32_t rvc_can_tx_get_flags() { return s_flags; }
 
-esp_err_t srvc_can_tx(tpms_core_t *tpms_core) {
+esp_err_t srvc_can_tx_init(tpms_core_t *tpms_core) {
   assert(tpms_core != NULL);
   ESP_LOGD(TAG, "CAN Transmitter service starting...");
 

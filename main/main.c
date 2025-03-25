@@ -96,12 +96,10 @@ void app_main(void) {
   tpms_core_t *tpms_core;
   ESP_ERROR_CHECK(tpms_core_init(&s_app_config.tpms_config, &tpms_core));
 
-  app_wifi_config_t *wifi_cfg = &s_app_config.wifi_config;
-
   // Services
-  ESP_ERROR_CHECK(srvc_wifi_softap(wifi_cfg));
-  ESP_ERROR_CHECK(srvc_uhf_rx(tpms_core));
-  ESP_ERROR_CHECK(srvc_can_tx(tpms_core));
+  ESP_ERROR_CHECK(srvc_wifi_softap_init(&s_app_config.wifi_config));
+  ESP_ERROR_CHECK(srvc_uhf_rx_init(tpms_core));
+  ESP_ERROR_CHECK(srvc_can_tx_init(tpms_core));
 
   vTaskSuspend(NULL);
 }

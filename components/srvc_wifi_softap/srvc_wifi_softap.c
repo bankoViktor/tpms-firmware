@@ -67,7 +67,7 @@ static void wifi_ap_config(const app_wifi_config_t *app_wifi_cfg) {
   ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_cfg));
 }
 
-esp_err_t srvc_wifi_softap(const app_wifi_config_t *app_wifi_cfg) {
+esp_err_t srvc_wifi_softap_init(const app_wifi_config_t *app_wifi_cfg) {
   if (app_wifi_cfg == NULL) {
     return ESP_ERR_INVALID_ARG;
   }

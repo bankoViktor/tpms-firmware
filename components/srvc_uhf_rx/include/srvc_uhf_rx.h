@@ -20,6 +20,6 @@
 /// @brief Start of the UHF Receiver service in separete task.
 /// @param tpms_core TPMS core.
 /// @return Status code.
-esp_err_t srvc_uhf_rx(tpms_core_t *tpms_core);
+esp_err_t srvc_uhf_rx_init(tpms_core_t *tpms_core);
 
 #endif

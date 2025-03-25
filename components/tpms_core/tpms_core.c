@@ -238,10 +238,10 @@ esp_err_t tpms_core_register_sensor(tpms_sensor_id_t sensor_id,
 
     ESP_LOGI(TAG, "Registered sensor " SIDSTR, sensor_id);
   } else {
-    ESP_LOGW(
-        TAG,
-        "Try register dublicat sensor " SIDSTR " of current tire %i (new tire %i)",
-        found_sensor->id, found_sensor_num, sensor_num);
+    ESP_LOGW(TAG,
+             "Try register dublicat sensor " SIDSTR
+             " of current tire %i (new tire %i)",
+             found_sensor->id, found_sensor_num, sensor_num);
     ret = ESP_ERR_NOT_ALLOWED;
   }
 

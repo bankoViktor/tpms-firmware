@@ -228,7 +228,7 @@ static void src_proc(void *arg) {
   vTaskDelete(0);
 }
 
-esp_err_t srvc_uhf_rx(tpms_core_t *tpms_core) {
+esp_err_t srvc_uhf_rx_init(tpms_core_t *tpms_core) {
   assert(tpms_core != NULL);
 
   ESP_LOGD(TAG, "UHF Receiver service starting...");

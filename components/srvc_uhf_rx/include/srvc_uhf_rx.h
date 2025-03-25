@@ -13,10 +13,6 @@
 #include "tpms_core.h"
 #include <esp_err.h>
 
-#define SRVC_UHF_RX_STACK_DEPTH 4096
-#define SRVC_UHF_RX_PRIORITY 5
-#define SRVC_UHF_RX_INTERVAL pdMS_TO_TICKS(50)
-
 /// @brief Start of the UHF Receiver service in separete task.
 /// @param tpms_core TPMS core.
 /// @return Status code.

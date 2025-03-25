@@ -13,9 +13,7 @@
 #include "tpms_core.h"
 #include <esp_err.h>
 
-#define SRVC_CAN_TX_STACK_DEPTH 4096
-#define SRVC_CAN_TX_PRIORITY 4
-#define SRVC_CAN_TX_INTERVAL pdMS_TO_TICKS(100)
+// Flags
 #define SRVC_CAN_TX_FLAG_LINK_FAULT (1 << 0)
 
 /// @brief Start of the CAN Bus Transmitter service in separete task.

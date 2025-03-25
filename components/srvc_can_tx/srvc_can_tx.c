@@ -15,9 +15,6 @@
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 
-#define CANTX_IO_NUM 17
-#define CANRX_IO_NUM 18
-#define CAN_TX_TIMEOUT_TICKS pdMS_TO_TICKS(1000)
 #define PRESSURE_KPA_TO_BAR(kpa) ((kpa) / 100.0)
 
 static const char *TAG = "can_srv";
@@ -138,7 +135,8 @@ static void transmit_message(const tpms_core_t *tpms_core) {
   fill_data(tpms_core);
 
   // Transmit
-  esp_err_t ret = twai_transmit(&s_twai_msg, CAN_TX_TIMEOUT_TICKS);
+  esp_err_t ret =
+      twai_transmit(&s_twai_msg, pdMS_TO_TICKS(CONFIG_SRVC_CAN_TIMEOUT_MS));
   if (ret == ESP_OK) {
 
     if (s_flags & SRVC_CAN_TX_FLAG_LINK_FAULT) {
@@ -160,8 +158,8 @@ static void transmit_message(const tpms_core_t *tpms_core) {
 
 static esp_err_t can_config() {
   // Initialize TWAI configuration structures
-  twai_general_config_t g_cfg =
-      TWAI_GENERAL_CONFIG_DEFAULT(CANTX_IO_NUM, CANRX_IO_NUM, TWAI_MODE_NORMAL);
+  twai_general_config_t g_cfg = TWAI_GENERAL_CONFIG_DEFAULT(
+      CONFIG_SRVC_CAN_TX_IO_NUM, CONFIG_SRVC_CAN_RX_IO_NUM, TWAI_MODE_NORMAL);
   twai_timing_config_t t_cfg = TWAI_TIMING_CONFIG_500KBITS();
   twai_filter_config_t f_cfg = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
@@ -193,7 +191,7 @@ static void src_proc(void *arg) {
     while (true) {
       transmit_message(tpms_core);
 
-      vTaskDelay(SRVC_CAN_TX_INTERVAL);
+      vTaskDelay(pdMS_TO_TICKS(CONFIG_SRVC_CAN_INTERVAL_MS));
     }
   }
 
@@ -207,9 +205,9 @@ esp_err_t srvc_can_tx_init(tpms_core_t *tpms_core) {
   assert(tpms_core != NULL);
   ESP_LOGD(TAG, "CAN Transmitter service starting...");
 
-  BaseType_t rtos_ret =
-      xTaskCreatePinnedToCore(src_proc, "can_srv", SRVC_CAN_TX_STACK_DEPTH,
-                              tpms_core, SRVC_CAN_TX_PRIORITY, NULL, 0);
+  BaseType_t rtos_ret = xTaskCreatePinnedToCore(
+      src_proc, "can_srv", CONFIG_SRVC_CAN_TASK_STACK_DEPTH, tpms_core,
+      CONFIG_SRVC_CAN_TASK_PRIORITY, NULL, 0);
   if (rtos_ret != pdPASS) {
     ESP_LOGE(TAG, "Create service task fail (RTOS error: %i)", rtos_ret);
     return ESP_FAIL;

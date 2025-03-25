@@ -46,9 +46,6 @@
  */
 #define MX_SENSOR_PSN1813_ID 0xC8A65DF7
 
-#define WIFI_SSID "CT2-TPMS"
-#define WIFI_PW "12345678"
-
 static const char *TAG = "app_cfg";
 
 esp_err_t app_config_restore(app_config_t *cfg_out) {
@@ -57,8 +54,10 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
   }
 
   // Wi-Fi
-  memcpy(cfg_out->wifi_config.ssid, WIFI_SSID, strlen(WIFI_SSID));
-  memcpy(cfg_out->wifi_config.password, WIFI_PW, strlen(WIFI_PW));
+  memcpy(cfg_out->wifi_config.ssid, CONFIG_SRVC_WIFI_SOFTAP_DEF_SSID,
+         strlen(CONFIG_SRVC_WIFI_SOFTAP_DEF_SSID));
+  memcpy(cfg_out->wifi_config.password, CONFIG_SRVC_WIFI_SOFTAP_DEF_PW,
+         strlen(CONFIG_SRVC_WIFI_SOFTAP_DEF_PW));
 
   // Sensor IDs
   cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_FRONT_LEFT] =

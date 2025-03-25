@@ -16,15 +16,6 @@
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 
-#define SPI_HOST SPI2_HOST
-#define SPI_MOSI 11
-#define SPI_CLK 12
-#define SPI_MISO 13
-
-#define CC1101_GDO0_1 9
-#define CC1101_CS_1 10
-#define CC1101_GDO0_2 17
-#define CC1101_CS_2 18
 #define CC1101_PACKET_LENGTH (AUTEL_MX_SENSOR_PACKET_LENGTH * 2)
 #define COUNTOF(arr) ((sizeof(arr)) / sizeof(*arr))
 
@@ -62,9 +53,9 @@ static esp_err_t spi_config() {
 
   // Config SPI driver
   spi_bus_config_t spi_cfg = {
-      .mosi_io_num = SPI_MOSI,
-      .miso_io_num = SPI_MISO,
-      .sclk_io_num = SPI_CLK,
+      .mosi_io_num = CONFIG_SRVC_UHF_SPI_MOSI_IO_NUM,
+      .miso_io_num = CONFIG_SRVC_UHF_SPI_MISO_IO_NUM,
+      .sclk_io_num = CONFIG_SRVC_UHF_SPI_CLK_IO_NUM,
       .data2_io_num = -1,
       .data3_io_num = -1,
       .data4_io_num = -1,
@@ -73,7 +64,8 @@ static esp_err_t spi_config() {
       .data7_io_num = -1,
       .max_transfer_sz = 256,
   };
-  ret = spi_bus_initialize(SPI_HOST, &spi_cfg, SPI_DMA_CH_AUTO);
+  ret = spi_bus_initialize(CONFIG_SRVC_UHF_SPI_HOST_NUM, &spi_cfg,
+                           SPI_DMA_CH_AUTO);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "SPI driver init fail");
   }
@@ -83,13 +75,13 @@ static esp_err_t spi_config() {
 
 static esp_err_t cc1101_config() {
   cc1101_config_t cc1101_cfg = {
-      .spi_host = SPI_HOST,
-      .miso_io_num = SPI_MISO,
+      .spi_host = CONFIG_SRVC_UHF_SPI_HOST_NUM,
+      .miso_io_num = CONFIG_SRVC_UHF_SPI_MISO_IO_NUM,
   };
 
   // Module
-  cc1101_cfg.cs_io_num = CC1101_CS_1;
-  cc1101_cfg.gdo0_io_num = CC1101_GDO0_1;
+  cc1101_cfg.cs_io_num = CONFIG_SRVC_UHF_CS_IO_NUM;
+  cc1101_cfg.gdo0_io_num = CONFIG_SRVC_UHF_IRQ_IO_NUM;
   esp_err_t ret = cc1101_init(&cc1101_cfg, &s_cc1101_handle);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "CC1101 init fail (0x%02X): %s", ret, esp_err_to_name(ret));
@@ -221,7 +213,7 @@ static void src_proc(void *arg) {
       }
     }
 
-    vTaskDelay(SRVC_UHF_RX_INTERVAL);
+    vTaskDelay(pdMS_TO_TICKS(CONFIG_SRVC_UHF_INTERVAL_MS));
   }
 
   ESP_LOGI(TAG, "Service stopped");
@@ -234,8 +226,8 @@ esp_err_t srvc_uhf_rx_init(tpms_core_t *tpms_core) {
   ESP_LOGD(TAG, "UHF Receiver service starting...");
 
   BaseType_t rtos_ret =
-      xTaskCreate(src_proc, "uhf_srv", SRVC_UHF_RX_STACK_DEPTH, tpms_core,
-                  SRVC_UHF_RX_PRIORITY, NULL);
+      xTaskCreate(src_proc, "uhf_srv", CONFIG_SRVC_UHF_TASK_STACK_DEPTH,
+                  tpms_core, CONFIG_SRVC_UHF_TASK_PRIORITY, NULL);
   if (rtos_ret != pdPASS) {
     ESP_LOGE(TAG, "Create service task fail (RTOS error: %i)", rtos_ret);
     return ESP_FAIL;

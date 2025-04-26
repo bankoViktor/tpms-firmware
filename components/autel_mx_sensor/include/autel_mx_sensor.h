@@ -48,7 +48,7 @@ typedef struct mxsensor_data_t {
 /// @brief Extract data from MX sensor packet.
 /// @param buffer Raw data buffer.
 /// @param packet_out Output MX sensor data.
-/// @return Status code.
+/// @return Status code: ESP_OK - success, ESP_ERR_INVALID_CRC - invalid CRC, ESP_ERR_INVALID_ARG - invalid argument.
 esp_err_t mxsensor_get_data(const uint8_t *buffer, mxsensor_data_t *packet_out);
 
 #endif

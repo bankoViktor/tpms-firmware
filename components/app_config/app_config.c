@@ -62,7 +62,10 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
   // Sensor IDs
   cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_FRONT_LEFT] =
       MX_SENSOR_PSN1615_ID;
-  cfg_out->tpms_config.valid_data_time_us = 1000 * 1000 * 20; // sec
+  // cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_REAR_RIGHT] =
+  //    MX_SENSOR_PSN1597_ID;
+
+  cfg_out->tpms_config.valid_data_time_us = 20 * 1E6; // sec
 
   // Pressure
   cfg_out->tpms_config.pressure_kpa_normal_front = 180;

@@ -65,7 +65,8 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
   cfg_out->tpms_config.valid_data_time_us = 1000 * 1000 * 20; // sec
 
   // Pressure
-  cfg_out->tpms_config.pressure_kpa_normal = 140;
+  cfg_out->tpms_config.pressure_kpa_normal_front = 180;
+  cfg_out->tpms_config.pressure_kpa_normal_rear = 150;
   cfg_out->tpms_config.pressure_kpa_caution_dev = 20;
   cfg_out->tpms_config.pressure_kpa_critical_dev = 60;
 

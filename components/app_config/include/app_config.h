@@ -26,7 +26,8 @@ typedef struct app_wifi_config_t {
 /// @brief TPMS configuration.
 typedef struct app_tpms_config_t {
   tpms_sensor_id_t sensor_ids[SENSOR_TIRE_MAX]; // Sensor identifiers.
-  float pressure_kpa_normal;                    // Pressure (KPa) normal.
+  float pressure_kpa_normal_front;    // Pressure (KPa) normal - front.
+  float pressure_kpa_normal_rear;     // Pressure (KPa) normal - rear.
   float pressure_kpa_caution_dev;     // Pressure (KPa) warn alarm deviation.
   float pressure_kpa_critical_dev;    // Pressure (KPa) err alarm deviation.
   uint8_t temperature_c_caution_thr;  // Temp. (C) Caution alarm threshold.

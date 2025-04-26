@@ -64,36 +64,36 @@ static void get_sensor_by_id(tpms_sensor_id_t sensor_id,
   }
 }
 
-static void update_sensor_state(tpms_sensor_t *sensor) {
+static void update_sensor_state(tpms_sensor_t *sensor, bool is_front) {
   assert(sensor != NULL);
 
   if (sensor->id == 0) {
     RESET_BIT(sensor->flags,
               SENSOR_FLAG_CAUTION_ALARM | SENSOR_FLAG_CRITICAL_ALARM);
   } else {
+
+    float press_normal = is_front
+                             ? s_tpms_core.config->pressure_kpa_normal_front
+                             : s_tpms_core.config->pressure_kpa_normal_rear;
+    float press_caution_dev = s_tpms_core.config->pressure_kpa_caution_dev;
+    float press_critical_dev = s_tpms_core.config->pressure_kpa_critical_dev;
+
     uint8_t is_caution_pressure =
-        sensor->data.pressure_kpa <
-            (s_tpms_core.config->pressure_kpa_normal -
-             s_tpms_core.config->pressure_kpa_caution_dev) ||
-        sensor->data.pressure_kpa >
-            (s_tpms_core.config->pressure_kpa_normal +
-             s_tpms_core.config->pressure_kpa_caution_dev);
+        sensor->data.pressure_kpa < (press_normal - press_caution_dev) ||
+        sensor->data.pressure_kpa > (press_normal + press_caution_dev);
 
     uint8_t is_critical_pressure =
-        sensor->data.pressure_kpa <
-            (s_tpms_core.config->pressure_kpa_normal -
-             s_tpms_core.config->pressure_kpa_critical_dev) ||
-        sensor->data.pressure_kpa >
-            (s_tpms_core.config->pressure_kpa_normal +
-             s_tpms_core.config->pressure_kpa_critical_dev);
+        sensor->data.pressure_kpa < (press_normal - press_critical_dev) ||
+        sensor->data.pressure_kpa > (press_normal + press_critical_dev);
+
+    float temp_caution_max = s_tpms_core.config->temperature_c_caution_thr;
+    float temp_critical_max = s_tpms_core.config->temperature_c_critical_thr;
 
     uint8_t is_caution_temperature =
-        sensor->data.temperature_c >
-        s_tpms_core.config->temperature_c_caution_thr;
+        sensor->data.temperature_c > temp_caution_max;
 
     uint8_t is_critical_temperature =
-        sensor->data.temperature_c >
-        s_tpms_core.config->temperature_c_critical_thr;
+        sensor->data.temperature_c > temp_critical_max;
 
     UPDATE_BIT(sensor->flags, SENSOR_FLAG_CAUTION_ALARM,
                is_caution_pressure || is_caution_temperature);
@@ -110,7 +110,10 @@ static void update_core_state() {
   for (; sensor_num < SENSOR_TIRE_MAX; sensor_num++) {
     tpms_sensor_t *sensor = &s_tpms_core.sensors[sensor_num];
 
-    update_sensor_state(sensor);
+    bool is_front = sensor_num == SENSOR_TIRE_FRONT_LEFT ||
+                    sensor_num == SENSOR_TIRE_FRONT_RIGHT;
+
+    update_sensor_state(sensor, is_front);
 
     if (sensor->flags & SENSOR_FLAG_VALID_DATA) {
       is_critical_alarm =

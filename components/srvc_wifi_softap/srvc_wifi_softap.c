@@ -18,28 +18,25 @@
 
 static const char *TAG = "wifi_ap";
 
-#define WIFI_CHANNEL 1
-#define WIFI_MAX_STA_CONN 4
-
-#ifndef WIFI_PW_SUPPRESS_IO_NUM
-#define WIFI_PW_SUPPRESS_IO_NUM 8
-#endif
-
 static int get_pw_suppress_io_state() {
-  gpio_config_t io_cfg = {.pin_bit_mask = (1ULL << WIFI_PW_SUPPRESS_IO_NUM),
-                          .mode = GPIO_MODE_INPUT,
-                          .pull_up_en = GPIO_PULLUP_ENABLE,
-                          .pull_down_en = GPIO_PULLDOWN_DISABLE,
-                          .intr_type = GPIO_INTR_DISABLE};
+#if CONFIG_SRVC_WIFI_SOFTAP_PW_SUPPRESS_IO_NUM < 0
+  return 0;
+#else
+  gpio_config_t io_cfg = {
+      .pin_bit_mask = (1ULL << CONFIG_SRVC_WIFI_SOFTAP_PW_SUPPRESS_IO_NUM),
+      .mode = GPIO_MODE_INPUT,
+      .pull_up_en = GPIO_PULLUP_ENABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE,
+      .intr_type = GPIO_INTR_DISABLE};
   ESP_ERROR_CHECK(gpio_config(&io_cfg));
-
-  return gpio_get_level(WIFI_PW_SUPPRESS_IO_NUM) ? 0 : 1;
+  return gpio_get_level(CONFIG_SRVC_WIFI_SOFTAP_PW_SUPPRESS_IO_NUM) ? 0 : 1;
+#endif
 }
 
 static void wifi_ap_config(const app_wifi_config_t *app_wifi_cfg) {
   wifi_ap_config_t wifi_ap_cfg = {
-      .channel = WIFI_CHANNEL,
-      .max_connection = WIFI_MAX_STA_CONN,
+      .channel = 1,
+      .max_connection = CONFIG_SRVC_WIFI_SOFTAP_MAX_CONN,
   };
 
   uint8_t is_wifi_pwd_suppression = get_pw_suppress_io_state();

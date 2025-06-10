@@ -8,31 +8,31 @@ menu "UHF receiver service"
     
     config SRVC_UHF_SPI_MOSI_IO_NUM
         int "UHF SPI MOSI I/O number"
-        default 11
+        default 27
         help
             Number of pin for SPI MOSI I/O.
 
     config SRVC_UHF_SPI_MISO_IO_NUM
         int "UHF SPI MISO I/O number"
-        default 13
+        default 26
         help
             Number of pin for SPI MISO I/O.
 
     config SRVC_UHF_SPI_CLK_IO_NUM
         int "UHF SPI CLK I/O number"
-        default 12
+        default 14
         help
             Number of pin for SPI CLK I/O.
 
     config SRVC_UHF_CS_IO_NUM
         int "UHF CS I/O number"
-        default 10
+        default 12
         help
             Number of pin for chip select output.
 
     config SRVC_UHF_IRQ_IO_NUM
         int "UHF IRQ I/O number"
-        default 9
+        default 13
         help
             Number of pin for external interrupt input.
 

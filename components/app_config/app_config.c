@@ -60,22 +60,22 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
          strlen(CONFIG_SRVC_WIFI_SOFTAP_DEF_PW));
 
   // Sensor IDs
-  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_FRONT_LEFT] =
-      MX_SENSOR_PSN1615_ID;
-  // cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_REAR_RIGHT] =
-  //    MX_SENSOR_PSN1597_ID;
+  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_FRONT_LEFT] = MX_SENSOR_PSN1986_ID;
+  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_FRONT_RIGHT] = MX_SENSOR_PSN1615_ID;
+  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_REAR_LEFT] = MX_SENSOR_PSN1597_ID;
+  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_REAR_RIGHT] = MX_SENSOR_PSN1813_ID;
 
-  cfg_out->tpms_config.valid_data_time_us = 20 * 1E6; // sec
+  cfg_out->tpms_config.valid_data_time_us = 30 * 1E6; // sec
 
   // Pressure
-  cfg_out->tpms_config.pressure_kpa_normal_front = 180;
-  cfg_out->tpms_config.pressure_kpa_normal_rear = 150;
-  cfg_out->tpms_config.pressure_kpa_caution_dev = 20;
+  cfg_out->tpms_config.pressure_kpa_normal_front = 210;
+  cfg_out->tpms_config.pressure_kpa_normal_rear = 220;
+  cfg_out->tpms_config.pressure_kpa_caution_dev = 30;
   cfg_out->tpms_config.pressure_kpa_critical_dev = 60;
 
   // Temperature
-  cfg_out->tpms_config.temperature_c_caution_thr = 40;
-  cfg_out->tpms_config.temperature_c_critical_thr = 50;
+  cfg_out->tpms_config.temperature_c_caution_thr = 50;
+  cfg_out->tpms_config.temperature_c_critical_thr = 70;
 
   ESP_LOGI(TAG, "Restored app config");
   return ESP_OK;
@@ -85,6 +85,8 @@ esp_err_t app_config_store(const app_config_t *cfg) {
   if (cfg == NULL) {
     return ESP_ERR_INVALID_ARG;
   }
+
+  // TODO: store to EEPROM
 
   ESP_LOGI(TAG, "Stored app config");
   return ESP_OK;

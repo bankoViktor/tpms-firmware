@@ -14,7 +14,9 @@
 #include <esp_err.h>
 #include <stdint.h>
 
+#define WIFI_SSID_MIN_LEN 1
 #define WIFI_SSID_MAX_LEN 32
+#define WIFI_PW_MIN_LEN 8
 #define WIFI_PW_MAX_LEN 64
 
 /// @brief Wi-Fi configuration.

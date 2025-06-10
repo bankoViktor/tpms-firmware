@@ -43,24 +43,24 @@
  *                                 | UUUUUUUU |
  *                              +--+----------+--+
  *                            x | 3V3        GND | x
- *         ESP32-Prog <---- RST | EN          23 |
+ *                            x | EN          23 |
  *                              > 36          22 |
- *                              > 39           1 | U0TXD |----> ESP32-Prog
- *                              > 34           3 | U0RXD |
+ *                              > 39           1 |
+ *                              > 34           3 |
  *                              > 35          21 | CANTX    |
  *                              | 32         GND | x        |----> SN65HVD230
  *                              | 33          19 | CANRX    |
  *                              | 25          18 |
- *                              | 26           5 |
- *                              | 27          17 |
- *                   | JTAG_TMS | 14          16 | JTAG_TDO ----> ESP32-Prog
- *   ESP32-Prog <----| JTAG_TDI | 12           4 |
- *                   |        x | GND          0 | BOOT ----> ESP32-Prog
- *                   | JTAG_TCK | 13           2 |
- *                            x | 9           15 |
- *                            x | 10           8 | x
- *                            x | 11           7 | x
- *                            x | 5V           6 | x
+ *                       | MISO | 26           5 |
+ *                       | MOSI | 27          17 |
+ *           CC1101 <----|  SCK | 14          16 |
+ *                       |  CSN | 12           4 |
+ *                       |    x | GND          0 |
+ *                       | GDO0 | 13           2 |
+ *                              | 9           15 |
+ *                              | 10           8 |
+ *                              | 11           7 |
+ *                            x | 5V           6 |
  *                              +-----+----+-----+
  *                                    +----+
  */
@@ -70,6 +70,7 @@
 #include "app_config.h"
 #include "srvc_can_tx.h"
 #include "srvc_uhf_rx.h"
+#include "srvc_web_ui.h"
 #include "srvc_wifi_softap.h"
 #include "tpms_core.h"
 #include <driver/gpio.h>
@@ -80,12 +81,13 @@ static app_config_t s_app_config;
 
 void app_main(void) {
   // Log configuration
-  // esp_log_level_set("cc1101", ESP_LOG_INFO);
-  // esp_log_level_set("uhf_srv", ESP_LOG_INFO);
-  // esp_log_level_set("can_srv", ESP_LOG_INFO);
-  // esp_log_level_set("tpms_core", ESP_LOG_INFO);
-  // esp_log_level_set("app_cfg", ESP_LOG_DEBUG);
+  esp_log_level_set("cc1101", ESP_LOG_INFO);
+  esp_log_level_set("uhf_srv", ESP_LOG_INFO);
+  esp_log_level_set("can_srv", ESP_LOG_INFO);
+  esp_log_level_set("tpms_core", ESP_LOG_INFO);
+  esp_log_level_set("app_cfg", ESP_LOG_DEBUG);
   // esp_log_level_set("wifi_ap", ESP_LOG_DEBUG);
+  //esp_log_level_set("web_ui", ESP_LOG_DEBUG);
 
   ESP_ERROR_CHECK(nvs_flash_init());
   ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LEVEL1));
@@ -97,9 +99,10 @@ void app_main(void) {
   ESP_ERROR_CHECK(tpms_core_init(&s_app_config.tpms_config, &tpms_core));
 
   // Services
-  ESP_ERROR_CHECK(srvc_wifi_softap_init(&s_app_config.wifi_config));
+  //ESP_ERROR_CHECK(srvc_wifi_softap_init(&s_app_config.wifi_config));
   ESP_ERROR_CHECK(srvc_uhf_rx_init(tpms_core));
   ESP_ERROR_CHECK(srvc_can_tx_init(tpms_core));
+  //ESP_ERROR_CHECK(srvc_web_ui_init(tpms_core, &s_app_config));
 
   vTaskSuspend(NULL);
 }

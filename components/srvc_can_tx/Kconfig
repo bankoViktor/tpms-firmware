@@ -2,13 +2,13 @@ menu "CAN transmitter service"
 
     config SRVC_CAN_TX_IO_NUM
         int "CAN TX I/O number"
-        default 17
+        default 21
         help
             Number of pin for CAN (TWAI) TX output.
     
     config SRVC_CAN_RX_IO_NUM
         int "CAN RX I/O number"
-        default 18
+        default 19
         help
             Number of pin for CAN (TWAI) RX input.
 

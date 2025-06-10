@@ -77,9 +77,13 @@
 #include <esp_log.h>
 #include <nvs_flash.h>
 
+static const char *TAG = "app";
+
 static app_config_t s_app_config;
 
 void app_main(void) {
+  ESP_LOGI(TAG, "Project Repository https://github.com/bankoViktor/tpms-firmware");
+
   // Log configuration
   esp_log_level_set("cc1101", ESP_LOG_INFO);
   esp_log_level_set("uhf_srv", ESP_LOG_INFO);

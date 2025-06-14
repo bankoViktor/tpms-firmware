@@ -1,0 +1,39 @@
+menu "CAN transmitter service"
+
+    config SRVC_CAN_TX_IO_NUM
+        int "CAN TX I/O number"
+        default 21
+        help
+            Number of pin for CAN (TWAI) TX output.
+    
+    config SRVC_CAN_RX_IO_NUM
+        int "CAN RX I/O number"
+        default 19
+        help
+            Number of pin for CAN (TWAI) RX input.
+
+    config SRVC_CAN_INTERVAL_MS
+        int "CAN TX interval in ms"
+        default 100
+        help
+            CAN transmission interval in ms.
+
+    config SRVC_CAN_TIMEOUT_MS
+        int "CAN TX timeout in ms"
+        default 1000
+        help
+            CAN transmission timeout in ms.
+
+    config SRVC_CAN_TASK_PRIORITY
+        int "CAN TX task priority"
+        default 4
+        help
+            CAN transmission task priority.
+
+    config SRVC_CAN_TASK_STACK_DEPTH
+        int "CAN TX task stack depth"
+        default 4096
+        help
+            CAN transmission task stack depth in butes.
+    
+endmenu

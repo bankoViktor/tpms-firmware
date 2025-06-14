@@ -1,0 +1,27 @@
+menu "Wi-Fi AP settings"
+
+    config SRVC_WIFI_SOFTAP_DEF_SSID
+        string "Default AP name"
+        default "TPMS"
+        help
+            Default network name of the created Wi-Fi Access Point.
+    
+    config SRVC_WIFI_SOFTAP_DEF_PW
+        string "Default AP password"
+        default "12345678"
+        help
+            Default password of the created Wi-Fi Access Point (8 character min.).
+
+    config SRVC_WIFI_SOFTAP_MAX_CONN
+        int "AP max simultaneous connections"
+        default 4
+        help
+            Maximum number of simultaneous connections.
+
+    config SRVC_WIFI_SOFTAP_PW_SUPPRESS_IO_NUM
+        int "AP password depress input number"
+        default 8
+        help
+            Number of a input pin for Wi-Fi password suppression of the Wi-Fi Access Point (-1 - not use).
+    
+endmenu

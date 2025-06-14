@@ -1,0 +1,57 @@
+menu "UHF receiver service"
+
+    config SRVC_UHF_SPI_HOST_NUM
+        int "UHF SPI host number"
+        default 1
+        help
+            Number of the SPI host.
+    
+    config SRVC_UHF_SPI_MOSI_IO_NUM
+        int "UHF SPI MOSI I/O number"
+        default 27
+        help
+            Number of pin for SPI MOSI I/O.
+
+    config SRVC_UHF_SPI_MISO_IO_NUM
+        int "UHF SPI MISO I/O number"
+        default 26
+        help
+            Number of pin for SPI MISO I/O.
+
+    config SRVC_UHF_SPI_CLK_IO_NUM
+        int "UHF SPI CLK I/O number"
+        default 14
+        help
+            Number of pin for SPI CLK I/O.
+
+    config SRVC_UHF_CS_IO_NUM
+        int "UHF CS I/O number"
+        default 12
+        help
+            Number of pin for chip select output.
+
+    config SRVC_UHF_IRQ_IO_NUM
+        int "UHF IRQ I/O number"
+        default 13
+        help
+            Number of pin for external interrupt input.
+
+    config SRVC_UHF_INTERVAL_MS
+        int "UHF interval in ms"
+        default 50
+        help
+            UHF receiving interval in ms.
+
+    config SRVC_UHF_TASK_PRIORITY
+        int "UHF task priority"
+        default 5
+        help
+            UHF receiving task priority.
+
+    config SRVC_UHF_TASK_STACK_DEPTH
+        int "UHF task stack depth"
+        default 4096
+        help
+            UHF receiving task stack depth in butes.
+    
+endmenu

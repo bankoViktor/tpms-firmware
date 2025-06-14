@@ -53,31 +53,46 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
     return ESP_ERR_INVALID_ARG;
   }
 
+  app_tpms_config_t *cfg = &cfg_out->tpms_config;
+
   // Wi-Fi
-  memcpy(cfg_out->wifi_config.ssid, CONFIG_SRVC_WIFI_SOFTAP_DEF_SSID,
-         strlen(CONFIG_SRVC_WIFI_SOFTAP_DEF_SSID));
-  memcpy(cfg_out->wifi_config.password, CONFIG_SRVC_WIFI_SOFTAP_DEF_PW,
-         strlen(CONFIG_SRVC_WIFI_SOFTAP_DEF_PW));
+  // memcpy(cfg_out->wifi_config.ssid, CONFIG_SRVC_WIFI_SOFTAP_DEF_SSID,
+  //        strlen(CONFIG_SRVC_WIFI_SOFTAP_DEF_SSID));
+  // memcpy(cfg_out->wifi_config.password, CONFIG_SRVC_WIFI_SOFTAP_DEF_PW,
+  //        strlen(CONFIG_SRVC_WIFI_SOFTAP_DEF_PW));
 
   // Sensor IDs
-  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_FRONT_LEFT] = MX_SENSOR_PSN1986_ID;
-  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_FRONT_RIGHT] = MX_SENSOR_PSN1615_ID;
-  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_REAR_LEFT] = MX_SENSOR_PSN1597_ID;
-  cfg_out->tpms_config.sensor_ids[SENSOR_TIRE_REAR_RIGHT] = MX_SENSOR_PSN1813_ID;
+  tpms_sensor_id_t *sensors = cfg->sensor_ids;
+  sensors[SENSOR_TIRE_FRONT_LEFT] = MX_SENSOR_PSN1986_ID;
+  sensors[SENSOR_TIRE_FRONT_RIGHT] = MX_SENSOR_PSN1615_ID;
+  sensors[SENSOR_TIRE_REAR_LEFT] = MX_SENSOR_PSN1597_ID;
+  sensors[SENSOR_TIRE_REAR_RIGHT] = MX_SENSOR_PSN1813_ID;
 
-  cfg_out->tpms_config.valid_data_time_us = 30 * 1E6; // sec
+  cfg->valid_data_time_us = 90 * 1E6; // sec
 
   // Pressure
-  cfg_out->tpms_config.pressure_kpa_normal_front = 210;
-  cfg_out->tpms_config.pressure_kpa_normal_rear = 220;
-  cfg_out->tpms_config.pressure_kpa_caution_dev = 30;
-  cfg_out->tpms_config.pressure_kpa_critical_dev = 60;
+  cfg->pressure_kpa_normal_front = 210;
+  cfg->pressure_kpa_normal_rear = 220;
+  cfg->pressure_kpa_caution_dev = 20;
+  cfg->pressure_kpa_critical_dev = 50;
 
   // Temperature
-  cfg_out->tpms_config.temperature_c_caution_thr = 50;
-  cfg_out->tpms_config.temperature_c_critical_thr = 70;
+  cfg->temperature_c_caution_thr = 50;
+  cfg->temperature_c_critical_thr = 70;
 
-  ESP_LOGI(TAG, "Restored app config");
+  ESP_LOGI(TAG, "Preset. Presure (KPa): front %f, rear %f",
+           cfg->pressure_kpa_normal_front, cfg->pressure_kpa_normal_rear);
+
+  ESP_LOGI(TAG, "Preset. Presure deviation (KPa): caution %f, critical %f",
+           cfg->pressure_kpa_caution_dev, cfg->pressure_kpa_critical_dev);
+
+  ESP_LOGI(TAG, "Preset. Temperature thresholds (C): caution %i, critical %i",
+           cfg->temperature_c_caution_thr, cfg->temperature_c_critical_thr);
+
+  ESP_LOGI(TAG, "Preset. Value clear delay (sec): %lu",
+           (uint32_t)(cfg->valid_data_time_us / 1E6));
+
+  // ESP_LOGI(TAG, "Restored app config");
   return ESP_OK;
 }
 

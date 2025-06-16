@@ -77,8 +77,8 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
   cfg->pressure_kpa_critical_dev = 50;
 
   // Temperature
-  cfg->temperature_c_caution_thr = 50;
-  cfg->temperature_c_critical_thr = 70;
+  cfg->temperature_c_caution_thr = 0;
+  cfg->temperature_c_critical_thr = 0;
 
   ESP_LOGI(TAG, "Preset. Presure (KPa): front %f, rear %f",
            cfg->pressure_kpa_normal_front, cfg->pressure_kpa_normal_rear);

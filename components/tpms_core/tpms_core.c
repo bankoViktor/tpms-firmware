@@ -90,10 +90,10 @@ static void update_sensor_state(tpms_sensor_t *sensor, bool is_front) {
     float temp_critical_max = s_tpms_core.config->temperature_c_critical_thr;
 
     uint8_t is_caution_temperature =
-        sensor->data.temperature_c > temp_caution_max;
+        temp_caution_max > 0 && sensor->data.temperature_c > temp_caution_max;
 
     uint8_t is_critical_temperature =
-        sensor->data.temperature_c > temp_critical_max;
+        temp_critical_max > 0 && sensor->data.temperature_c > temp_critical_max;
 
     UPDATE_BIT(sensor->flags, SENSOR_FLAG_CAUTION_ALARM,
                is_caution_pressure || is_caution_temperature);

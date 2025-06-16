@@ -68,7 +68,7 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
   sensors[SENSOR_TIRE_REAR_LEFT] = MX_SENSOR_PSN1597_ID;
   sensors[SENSOR_TIRE_REAR_RIGHT] = MX_SENSOR_PSN1813_ID;
 
-  cfg->valid_data_time_us = 90 * 1E6; // sec
+  cfg->valid_data_time_us = 4 * 60 * 1E6; // sec
 
   // Pressure
   cfg->pressure_kpa_normal_front = 210;

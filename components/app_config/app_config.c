@@ -73,7 +73,7 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
   // Pressure
   cfg->pressure_kpa_normal_front = 210;
   cfg->pressure_kpa_normal_rear = 220;
-  cfg->pressure_kpa_caution_dev = 20;
+  cfg->pressure_kpa_caution_dev = 35; // During movement, the pressure value achieve ~240 kPa
   cfg->pressure_kpa_critical_dev = 50;
 
   // Temperature

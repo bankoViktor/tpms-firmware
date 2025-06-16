@@ -68,17 +68,17 @@ esp_err_t app_config_restore(app_config_t *cfg_out) {
   sensors[SENSOR_TIRE_REAR_LEFT] = MX_SENSOR_PSN1597_ID;
   sensors[SENSOR_TIRE_REAR_RIGHT] = MX_SENSOR_PSN1813_ID;
 
-  cfg->valid_data_time_us = 90 * 1E6; // sec
+  cfg->valid_data_time_us = 4 * 60 * 1E6; // sec
 
   // Pressure
   cfg->pressure_kpa_normal_front = 210;
   cfg->pressure_kpa_normal_rear = 220;
-  cfg->pressure_kpa_caution_dev = 20;
+  cfg->pressure_kpa_caution_dev = 35; // During movement, the pressure value achieve ~240 kPa
   cfg->pressure_kpa_critical_dev = 50;
 
   // Temperature
-  cfg->temperature_c_caution_thr = 50;
-  cfg->temperature_c_critical_thr = 70;
+  cfg->temperature_c_caution_thr = 0;
+  cfg->temperature_c_critical_thr = 0;
 
   ESP_LOGI(TAG, "Preset. Presure (KPa): front %f, rear %f",
            cfg->pressure_kpa_normal_front, cfg->pressure_kpa_normal_rear);

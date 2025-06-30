@@ -1,32 +1,31 @@
+# Change Log
 
-## 1.1.0 (2025-06-16)
 
-### New Features
+## [1.1.0] - 2025-06-16
 
-- Added disable temperature alarm if thresholds equals 0.
+### Added
 
-### Improvements
+- Disable temperature alarm if thresholds equals 0.
+
+### Changed
 
 - Increased front pressure deviation to 35 KPa.
 - Increased reset values interval to 4 min.
 - Disable temperature alarm.
 
 
-## 1.0.0 (2025-06-14)
+## [1.0.0] - 2025-06-14
 
-### New Features
+### Added
 
-- Added TPMS core features.
-- Added separate pressure for front and rear tires.
-- Added feature of reset values by interval (0 is disabled).
+- TPMS core features.
+- Separate pressure for front and rear tires.
+- Feature of reset values by interval (0 is disabled).
 - Set pressure (KPa): front to 210, rear to 220.
 - Set pressure deviations (KPa): caution to ±20, critical to ±50.
 - Set temperation thresholds (C): caution to ±50, critical to ±70.
 - Set reset values interval to 90 sec.
 
 
-## 0.0.0 (YYYY-MM-DD)
-
-### New Features
-### Improvements
-### Bug Fixes
+[1.1.0]: https://github.com/bankoViktor/tpms-firmware/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/bankoViktor/tpms-firmware/releases/tag/v1.0.0
